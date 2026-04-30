@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metro CDMX — Mapa de Accesibilidad</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f7f2;--canvas:#ffffff;--panel:#f0efe8;--card:#e6e4dc;
+  --border:rgba(20,18,10,.1);--text:#1a1814;--text2:rgba(20,18,10,.58);--text3:rgba(20,18,10,.36);
+  --sans:'DM Sans',sans-serif;--mono:'Space Mono',monospace;
+  --green:#2a985a;--red:#cc3300;--amber:#c07a00;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--sans);color:var(--text);display:flex;flex-direction:column}
+
+#top-bar{
+  height:42px;background:var(--bg);border-bottom:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+  flex-shrink:0;z-index:10;
+}
+.tb-logo{font-family:var(--sans);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:9px}
+.tb-logo-mark{display:flex;gap:2px}
+.tb-logo-mark span{width:5px;height:5px;border-radius:50%}
+.tb-nav{display:flex;align-items:center;gap:5px;font-family:var(--sans);font-size:.52rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase}
+.tb-nav a{color:var(--text3);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:3px;transition:all .14s}
+.tb-nav a:hover{color:var(--text);border-color:var(--text)}
+.tb-nav a.on{color:var(--text);border-color:var(--text);font-weight:700}
+
+#app{flex:1;display:flex;min-height:0}
+#map-wrap{flex:1;position:relative;overflow:hidden;background:var(--canvas);border-right:1.5px solid var(--border)}
+#map-svg{width:100%;height:100%;cursor:grab;display:block}
+#map-svg:active{cursor:grabbing}
+
+#sidebar{
+  width:230px;flex-shrink:0;overflow-y:auto;background:var(--bg);
+  padding:14px 13px;display:flex;flex-direction:column;gap:14px;
+}
+#sidebar::-webkit-scrollbar{width:3px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.sb-label{font-family:var(--mono);font-size:.4rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+
+.vbtns{display:flex;flex-direction:column;gap:3px}
+.vbtn{
+  font-family:var(--sans);font-size:.66rem;font-weight:500;
+  padding:6px 9px;border:1px solid var(--border);border-radius:4px;
+  background:transparent;color:var(--text2);cursor:pointer;text-align:left;
+  transition:all .13s;display:flex;align-items:center;gap:7px;
+}
+.vbtn:hover{background:var(--card);color:var(--text)}
+.vbtn.on{background:var(--text);color:#fff;border-color:var(--text)}
+.vbtn-pip{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.acc-items{display:flex;flex-direction:column;gap:5px}
+.acc-item{display:flex;align-items:center;gap:7px;font-family:var(--sans);font-size:.62rem;color:var(--text2)}
+
+.llist{display:flex;flex-direction:column;gap:2px}
+.lrow{
+  display:flex;align-items:center;gap:7px;font-family:var(--sans);font-size:.6rem;color:var(--text2);
+  padding:3px 5px;border-radius:3px;cursor:pointer;transition:background .12s;
+}
+.lrow:hover{background:var(--card)}
+.lrow.dim{opacity:.3}
+.lswatch{height:5px;border-radius:2px;flex-shrink:0}
+.lname{flex:1;font-size:.6rem}
+.lpct{font-family:var(--mono);font-size:.42rem;color:var(--text3)}
+
+.stat-items{display:flex;flex-direction:column;gap:8px}
+.stat-item{}
+.stat-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.stat-lbl{font-family:var(--sans);font-size:.56rem;color:var(--text2);display:flex;align-items:center;gap:5px}
+.stat-val{font-family:var(--mono);font-size:.52rem;font-weight:700;color:var(--text)}
+.mbar{height:3px;background:var(--card);border-radius:2px;overflow:hidden}
+.mbar-fill{height:100%;border-radius:2px;transition:width .5s ease}
+
+#tooltip{
+  position:fixed;z-index:1000;background:var(--bg);border:1px solid var(--border);
+  border-radius:7px;padding:10px 13px;font-family:var(--sans);font-size:.72rem;
+  color:var(--text);pointer-events:none;opacity:0;transition:opacity .1s;
+  max-width:210px;box-shadow:0 6px 24px rgba(0,0,0,.1);line-height:1.55;
+}
+#tooltip .ttn{font-weight:700;font-size:.8rem;margin-bottom:2px}
+#tooltip .ttl{font-family:var(--mono);font-size:.44rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+#tooltip .tta{font-size:.64rem;font-weight:600;display:flex;align-items:center;gap:5px}
+#tooltip .ttf{font-size:.58rem;color:var(--text3);margin-top:3px}
+
+#zc{position:absolute;bottom:14px;left:14px;display:flex;flex-direction:column;gap:3px;z-index:5}
+.zb{
+  width:26px;height:26px;background:var(--bg);border:1px solid var(--border);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:15px;color:var(--text2);transition:all .13s;font-family:var(--mono);line-height:1;
+}
+.zb:hover{background:var(--card);color:var(--text)}
+
+.map-badge{
+  font-family:'Space Mono',monospace;font-size:5.5px;font-weight:700;
+  fill:#fff;pointer-events:none;dominant-baseline:middle;text-anchor:middle;
+}
+
+@media(max-width:640px){
+  #sidebar{width:100%;height:140px;flex-shrink:0;flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:10px;gap:10px}
+  #app{flex-direction:column}
+  .sb-section{flex-shrink:0;min-width:140px}
+  #map-wrap{border-right:none;border-bottom:1.5px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<div id="top-bar">
+  <div class="tb-logo">
+    <div class="tb-logo-mark">
+      <span style="background:#E4538F"></span><span style="background:#0069A7"></span>
+      <span style="background:#118147"></span><span style="background:#ED6D26"></span>
+    </div>
+    Metro CDMX · Accesibilidad
+  </div>
+  <nav class="tb-nav">
+    <a href="intro.html">← Reportaje</a>
+    <a href="index.html">Red interactiva</a>
+    <a href="Radial.html">Radial</a>
+    <a href="mapa-accesibilidad.html" class="on">Mapa</a>
+  </nav>
+</div>
+
+<div id="app">
+  <div id="map-wrap">
+    <svg id="map-svg"></svg>
+    <div id="zc">
+      <button class="zb" id="zi">+</button>
+      <button class="zb" id="zo">−</button>
+      <button class="zb" id="zr" style="font-size:9px">⊙</button>
+    </div>
+  </div>
+
+  <div id="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Vista</div>
+      <div class="vbtns">
+        <button class="vbtn on" data-view="acc">
+          <span class="vbtn-pip" style="background:var(--green)"></span>Accesibilidad
+        </button>
+        <button class="vbtn" data-view="flu">
+          <span class="vbtn-pip" style="background:#0069A7"></span>Afluencia
+        </button>
+        <button class="vbtn" data-view="net">
+          <span class="vbtn-pip" style="background:#888"></span>Solo red
+        </button>
+      </div>
+    </div>
+
+    <div class="sb-section" id="acc-leg">
+      <div class="sb-label">Referencia</div>
+      <div class="acc-items">
+        <div class="acc-item">
+          <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#2a985a" stroke="#1c7040" stroke-width="1"/></svg>Accesible
+        </div>
+        <div class="acc-item">
+          <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#fff8f6" stroke="#cc3300" stroke-width="1.5"/></svg>No accesible
+        </div>
+        <div class="acc-item">
+          <svg width="16" height="12"><circle cx="6" cy="6" r="4" fill="#e8e7df" stroke="#aaa" stroke-width="1"/><circle cx="6" cy="6" r="7.5" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="2 1.5"/></svg>Transbordo
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Líneas</div>
+      <div class="llist" id="llist"></div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Accesibilidad por línea</div>
+      <div class="stat-items" id="stats"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+// ═══ DATA ════════════════════════════════════════════════════
+const NODES = [
+  {id:'Observatorio',l:'1',o:1,t:'Terminal',ev:'Si',ee:'No',ac:'No',af:7040,lat:19.398237,lng:-99.200363},
+  {id:'Tacubaya_1',l:'1',o:2,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:6800,lat:19.403439,lng:-99.187102},
+  {id:'Juanacatlan',l:'1',o:3,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:3152,lat:19.41289,lng:-99.182167},
+  {id:'Chapultepec',l:'1',o:4,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:1722,lat:19.420783,lng:-99.176288},
+  {id:'Sevilla',l:'1',o:5,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:2098,lat:19.421916,lng:-99.17058},
+  {id:'Insurgentes',l:'1',o:6,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:3070,lat:19.423292,lng:-99.163177},
+  {id:'Cuauhtemoc',l:'1',o:7,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:5265,lat:19.425862,lng:-99.154701},
+  {id:'Balderas_1',l:'1',o:8,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:5526,lat:19.42744,lng:-99.149036},
+  {id:'Salto_del_Agua_1',l:'1',o:9,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:5122,lat:19.426813,lng:-99.142213},
+  {id:'Isabel_la_Catolica',l:'1',o:10,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:5562,lat:19.426732,lng:-99.137685},
+  {id:'Pino_Suarez_1',l:'1',o:11,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:4793,lat:19.425336,lng:-99.132943},
+  {id:'Merced',l:'1',o:12,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:4127,lat:19.425558,lng:-99.124639},
+  {id:'Candelaria_1',l:'1',o:13,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:5429,lat:19.428837,lng:-99.119511},
+  {id:'San_Lazaro_1',l:'1',o:14,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:6139,lat:19.430213,lng:-99.114833},
+  {id:'Moctezuma',l:'1',o:15,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:6263,lat:19.427218,lng:-99.110305},
+  {id:'Balbuena',l:'1',o:16,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:5292,lat:19.423231,lng:-99.102302},
+  {id:'Boulevard_Puerto_Aereo',l:'1',o:17,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:5460,lat:19.41967,lng:-99.09595},
+  {id:'Gomez_Farias',l:'1',o:18,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:4354,lat:19.416472,lng:-99.09035},
+  {id:'Zaragoza',l:'1',o:19,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:5222,lat:19.412344,lng:-99.08241},
+  {id:'Pantitlan_1',l:'1',o:20,t:'Terminal_Transbordo',ev:'No',ee:'No',ac:'No',af:4922,lat:19.415359,lng:-99.072132},
+  {id:'Cuatro_Caminos',l:'2',o:1,t:'Terminal',ev:'Si',ee:'Si',ac:'Si',af:1788,lat:19.459592,lng:-99.215899},
+  {id:'Panteones',l:'2',o:2,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:4815,lat:19.458763,lng:-99.203153},
+  {id:'Tacuba_2',l:'2',o:3,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6900,lat:19.459349,lng:-99.189205},
+  {id:'Cuitlahuac',l:'2',o:4,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:6662,lat:19.457448,lng:-99.182038},
+  {id:'Popotla',l:'2',o:5,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:6564,lat:19.452147,lng:-99.1747},
+  {id:'Colegio_Militar',l:'2',o:6,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:7189,lat:19.449354,lng:-99.172254},
+  {id:'Normal',l:'2',o:7,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:6824,lat:19.4444,lng:-99.1674},
+  {id:'San_Cosme',l:'2',o:8,t:'Intermedia',ev:'',ee:'',ac:'No',af:7197,lat:19.441706,lng:-99.161096},
+  {id:'Revolucion',l:'2',o:9,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:6227,lat:19.439561,lng:-99.155431},
+  {id:'Hidalgo_2',l:'2',o:10,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6796,lat:19.437295,lng:-99.147105},
+  {id:'Bellas_Artes_2',l:'2',o:11,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6444,lat:19.436243,lng:-99.141955},
+  {id:'Allende',l:'2',o:12,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:5431,lat:19.435514,lng:-99.137406},
+  {id:'Zocalo',l:'2',o:13,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:6282,lat:19.433248,lng:-99.1329},
+  {id:'Pino_Suarez_2',l:'2',o:14,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:5175,lat:19.425336,lng:-99.132943},
+  {id:'San_Antonio_Abad',l:'2',o:15,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:7974,lat:19.418597,lng:-99.134145},
+  {id:'Chabacano_2',l:'2',o:16,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:8267,lat:19.408438,lng:-99.135754},
+  {id:'Viaducto',l:'2',o:17,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:6990,lat:19.400808,lng:-99.136891},
+  {id:'Xola',l:'2',o:18,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:5789,lat:19.3952,lng:-99.1377},
+  {id:'Villa_de_Cortes',l:'2',o:19,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:2098,lat:19.38753,lng:-99.138994},
+  {id:'Nativitas',l:'2',o:20,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:6797,lat:19.379474,lng:-99.140217},
+  {id:'Portales',l:'2',o:21,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:6140,lat:19.3698,lng:-99.1416},
+  {id:'Ermita_2',l:'2',o:22,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:5644,lat:19.361883,lng:-99.142942},
+  {id:'General_Anaya',l:'2',o:23,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:3512,lat:19.353259,lng:-99.145002},
+  {id:'Tasquena',l:'2',o:24,t:'Terminal',ev:'No',ee:'Si',ac:'No',af:3906,lat:19.344168,lng:-99.142685},
+  {id:'Indios_Verdes',l:'3',o:1,t:'Terminal',ev:'No',ee:'No',ac:'No',af:3987,lat:19.495358,lng:-99.119468},
+  {id:'Deportivo_18_de_Marzo_3',l:'3',o:2,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:4454,lat:19.483747,lng:-99.126549},
+  {id:'Potrero',l:'3',o:3,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:5440,lat:19.47691,lng:-99.132171},
+  {id:'La_Raza_3',l:'3',o:4,t:'Transbordo',ev:'Si',ee:'No',ac:'No',af:7761,lat:19.470153,lng:-99.136891},
+  {id:'Tlatelolco',l:'3',o:5,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:8666,lat:19.454979,lng:-99.142814},
+  {id:'Guerrero_3',l:'3',o:6,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:7925,lat:19.445146,lng:-99.145389},
+  {id:'Hidalgo_3',l:'3',o:7,t:'Transbordo',ev:'Si',ee:'No',ac:'No',af:6796,lat:19.437295,lng:-99.147105},
+  {id:'Juarez',l:'3',o:8,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:5985,lat:19.433167,lng:-99.147792},
+  {id:'Balderas_3',l:'3',o:9,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:5202,lat:19.42744,lng:-99.149036},
+  {id:'Ninos_Heroes',l:'3',o:10,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6565,lat:19.419508,lng:-99.150581},
+  {id:'Hospital_General',l:'3',o:11,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:6448,lat:19.413578,lng:-99.153886},
+  {id:'Centro_Medico_3',l:'3',o:12,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:5861,lat:19.406637,lng:-99.155753},
+  {id:'Etiopia',l:'3',o:13,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:4869,lat:19.395586,lng:-99.156268},
+  {id:'Eugenia',l:'3',o:14,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:5716,lat:19.385466,lng:-99.157469},
+  {id:'Division_del_Norte',l:'3',o:15,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:5574,lat:19.380021,lng:-99.158885},
+  {id:'Zapata_3',l:'3',o:16,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:4807,lat:19.370952,lng:-99.164937},
+  {id:'Coyoacan',l:'3',o:17,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:3269,lat:19.361417,lng:-99.170709},
+  {id:'Viveros',l:'3',o:18,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:2471,lat:19.353724,lng:-99.176052},
+  {id:'Miguel_Angel_de_Quevedo',l:'3',o:19,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:2778,lat:19.346395,lng:-99.18103},
+  {id:'Copilco',l:'3',o:20,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:6216,lat:19.335887,lng:-99.176652},
+  {id:'Universidad',l:'3',o:21,t:'Terminal',ev:'No',ee:'No',ac:'No',af:6074,lat:19.324427,lng:-99.17397},
+  {id:'Martin_Carrera_4',l:'4',o:1,t:'Terminal_Transbordo',ev:'No',ee:'No',ac:'No',af:6817,lat:19.484921,lng:-99.104404},
+  {id:'Talisman',l:'4',o:2,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:5870,lat:19.47428,lng:-99.108009},
+  {id:'Bondojito',l:'4',o:3,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:7307,lat:19.46461,lng:-99.111958},
+  {id:'Consulado_4',l:'4',o:4,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:8294,lat:19.457893,lng:-99.113932},
+  {id:'Canal_del_Norte',l:'4',o:5,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:9595,lat:19.449112,lng:-99.116507},
+  {id:'Morelos_4',l:'4',o:6,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:8096,lat:19.438974,lng:-99.118266},
+  {id:'Candelaria_4',l:'4',o:7,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:5429,lat:19.428837,lng:-99.119511},
+  {id:'Fray_Servando',l:'4',o:8,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:4738,lat:19.421633,lng:-99.120541},
+  {id:'Jamaica_4',l:'4',o:9,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6345,lat:19.409004,lng:-99.122171},
+  {id:'Santa_Anita_4',l:'4',o:10,t:'Terminal_Transbordo',ev:'No',ee:'Si',ac:'No',af:8649,lat:19.40273,lng:-99.121699},
+  {id:'Politecnico',l:'5',o:1,t:'Terminal',ev:'No',ee:'No',ac:'No',af:2403,lat:19.50082,lng:-99.149294},
+  {id:'Instituto_del_Petroleo_5',l:'5',o:2,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:2883,lat:19.489573,lng:-99.14526},
+  {id:'Autobuses_del_Norte',l:'5',o:3,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:5144,lat:19.478973,lng:-99.140668},
+  {id:'La_Raza_5',l:'5',o:4,t:'Transbordo',ev:'Si',ee:'No',ac:'No',af:7844,lat:19.470153,lng:-99.136891},
+  {id:'Misterios',l:'5',o:5,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:8485,lat:19.463315,lng:-99.130797},
+  {id:'Valle_Gomez',l:'5',o:6,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:1650,lat:19.458742,lng:-99.119296},
+  {id:'Consulado_5',l:'5',o:7,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:8294,lat:19.457893,lng:-99.113932},
+  {id:'Eduardo_Molina',l:'5',o:8,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:7827,lat:19.451378,lng:-99.105434},
+  {id:'Aragon',l:'5',o:9,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:7197,lat:19.451236,lng:-99.095886},
+  {id:'Oceania_5',l:'5',o:10,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:5861,lat:19.445672,lng:-99.087238},
+  {id:'Terminal_Aerea',l:'5',o:11,t:'Intermedia',ev:'',ee:'',ac:'No',af:4363,lat:19.433734,lng:-99.087667},
+  {id:'Hangares',l:'5',o:12,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:3981,lat:19.424142,lng:-99.087496},
+  {id:'Pantitlan_5',l:'5',o:13,t:'Terminal_Transbordo',ev:'No',ee:'No',ac:'No',af:4922,lat:19.415359,lng:-99.072132},
+  {id:'El_Rosario_6',l:'6',o:1,t:'Terminal_Transbordo',ev:'Si',ee:'No',ac:'No',af:7011,lat:19.504541,lng:-99.20002},
+  {id:'Tezozomoc',l:'6',o:2,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6897,lat:19.495116,lng:-99.196286},
+  {id:'Azcapotzalco',l:'6',o:3,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:7823,lat:19.490989,lng:-99.186416},
+  {id:'Ferreria',l:'6',o:4,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:4151,lat:19.490746,lng:-99.173841},
+  {id:'Norte_45',l:'6',o:5,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:790,lat:19.488683,lng:-99.162769},
+  {id:'Vallejo',l:'6',o:6,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:1650,lat:19.490625,lng:-99.15586},
+  {id:'Instituto_del_Petroleo_6',l:'6',o:7,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:3321,lat:19.489573,lng:-99.14526},
+  {id:'Lindavista',l:'6',o:8,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:3478,lat:19.487712,lng:-99.13466},
+  {id:'Deportivo_18_de_Marzo_6',l:'6',o:9,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:4328,lat:19.483747,lng:-99.126549},
+  {id:'La_Villa',l:'6',o:10,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:5544,lat:19.481522,lng:-99.117923},
+  {id:'Martin_Carrera_6',l:'6',o:11,t:'Terminal_Transbordo',ev:'No',ee:'Si',ac:'No',af:6847,lat:19.484921,lng:-99.104404},
+  {id:'El_Rosario_7',l:'7',o:1,t:'Terminal_Transbordo',ev:'Si',ee:'No',ac:'No',af:6441,lat:19.504541,lng:-99.20002},
+  {id:'Aquiles_Serdan',l:'7',o:2,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:7597,lat:19.490423,lng:-99.19487},
+  {id:'Camarones',l:'7',o:3,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:6954,lat:19.479135,lng:-99.190063},
+  {id:'Refineria',l:'7',o:4,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:4763,lat:19.469951,lng:-99.190578},
+  {id:'Tacuba_7',l:'7',o:5,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6900,lat:19.459349,lng:-99.189205},
+  {id:'San_Joaquin',l:'7',o:6,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:7413,lat:19.445793,lng:-99.191823},
+  {id:'Polanco',l:'7',o:7,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:2040,lat:19.433511,lng:-99.191029},
+  {id:'Auditorio',l:'7',o:8,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:1066,lat:19.425498,lng:-99.191995},
+  {id:'Constituyentes',l:'7',o:9,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:3476,lat:19.411858,lng:-99.191265},
+  {id:'Tacubaya_7',l:'7',o:10,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6800,lat:19.403439,lng:-99.187102},
+  {id:'San_Pedro_de_los_Pinos',l:'7',o:11,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:7218,lat:19.391275,lng:-99.186051},
+  {id:'San_Antonio',l:'7',o:12,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:4835,lat:19.384757,lng:-99.186308},
+  {id:'Mixcoac_7',l:'7',o:13,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:4991,lat:19.375891,lng:-99.187531},
+  {id:'Barranca_del_Muerto',l:'7',o:14,t:'Terminal',ev:'No',ee:'Si',ac:'No',af:3215,lat:19.360648,lng:-99.190149},
+  {id:'Garibaldi_8',l:'8',o:1,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:8936,lat:19.444458,lng:-99.139724},
+  {id:'Bellas_Artes_8',l:'8',o:2,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6761,lat:19.436243,lng:-99.141955},
+  {id:'San_Juan_de_Letran',l:'8',o:3,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6301,lat:19.431305,lng:-99.141569},
+  {id:'Salto_del_Agua_8',l:'8',o:4,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:5581,lat:19.426813,lng:-99.142213},
+  {id:'Doctores',l:'8',o:5,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:7881,lat:19.421612,lng:-99.143372},
+  {id:'Obrera',l:'8',o:6,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:7476,lat:19.413558,lng:-99.144187},
+  {id:'Chabacano_8',l:'8',o:7,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:8267,lat:19.408438,lng:-99.135754},
+  {id:'La_Viga',l:'8',o:8,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:7397,lat:19.406495,lng:-99.126248},
+  {id:'Santa_Anita_8',l:'8',o:9,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:8469,lat:19.40273,lng:-99.121699},
+  {id:'Coyuya',l:'8',o:10,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:6809,lat:19.398521,lng:-99.113545},
+  {id:'Iztacalco',l:'8',o:11,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:9674,lat:19.388562,lng:-99.112215},
+  {id:'Apatlaco',l:'8',o:12,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:8794,lat:19.379292,lng:-99.109597},
+  {id:'Aculco',l:'8',o:13,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6703,lat:19.374069,lng:-99.108095},
+  {id:'Escuadron_201',l:'8',o:14,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6249,lat:19.36492,lng:-99.109554},
+  {id:'Atlalilco_8',l:'8',o:15,t:'Transbordo',ev:'Si',ee:'No',ac:'No',af:6436,lat:19.356134,lng:-99.101315},
+  {id:'Iztapalapa',l:'8',o:16,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6921,lat:19.357834,lng:-99.093461},
+  {id:'Cerro_de_la_Estrella',l:'8',o:17,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:5761,lat:19.356012,lng:-99.085522},
+  {id:'UAM',l:'8',o:18,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6454,lat:19.351234,lng:-99.074707},
+  {id:'Constitucion_de_1917',l:'8',o:19,t:'Terminal',ev:'Si',ee:'No',ac:'No',af:8409,lat:19.34593,lng:-99.063892},
+  {id:'Tacubaya_9',l:'9',o:1,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6800,lat:19.403439,lng:-99.187102},
+  {id:'Patriotismo',l:'9',o:2,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:5221,lat:19.4062,lng:-99.1789},
+  {id:'Chilpancingo',l:'9',o:3,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:5723,lat:19.4059,lng:-99.1686},
+  {id:'Centro_Medico_9',l:'9',o:4,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:5128,lat:19.406637,lng:-99.155753},
+  {id:'Lazaro_Cardenas',l:'9',o:5,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:7315,lat:19.40696,lng:-99.144874},
+  {id:'Chabacano_9',l:'9',o:6,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:8267,lat:19.408438,lng:-99.135754},
+  {id:'Jamaica_9',l:'9',o:7,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:6345,lat:19.409004,lng:-99.122171},
+  {id:'Mixiuhca',l:'9',o:8,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:4954,lat:19.408478,lng:-99.112902},
+  {id:'Velodromo',l:'9',o:9,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:3604,lat:19.408478,lng:-99.103074},
+  {id:'Ciudad_Deportiva',l:'9',o:10,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:4113,lat:19.408357,lng:-99.091229},
+  {id:'Puebla',l:'9',o:11,t:'Intermedia',ev:'No',ee:'Si',ac:'No',af:5383,lat:19.407142,lng:-99.082432},
+  {id:'Pantitlan_9',l:'9',o:12,t:'Terminal_Transbordo',ev:'No',ee:'Si',ac:'No',af:4922,lat:19.415359,lng:-99.072132},
+  {id:'Mixcoac_12',l:'12',o:1,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:4991,lat:19.375891,lng:-99.187531},
+  {id:'Insugentes_Sur',l:'12',o:2,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:3070,lat:19.3736,lng:-99.1788},
+  {id:'Hospital_20_de_Noviembre',l:'12',o:3,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:4473,lat:19.372,lng:-99.171},
+  {id:'Zapata_12',l:'12',o:4,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:4807,lat:19.370952,lng:-99.164937},
+  {id:'Parque_de_los_Venados',l:'12',o:5,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:0,lat:19.3707,lng:-99.1587},
+  {id:'Eje_Central',l:'12',o:6,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:4869,lat:19.3614,lng:-99.1514},
+  {id:'Ermita_12',l:'12',o:7,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:5644,lat:19.361883,lng:-99.142942},
+  {id:'Mexilcalcingo',l:'12',o:8,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:6068,lat:19.3577,lng:-99.1218},
+  {id:'Atlalilco_12',l:'12',o:9,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:6436,lat:19.356134,lng:-99.101315},
+  {id:'Culhuacan',l:'12',o:10,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:8342,lat:19.337,lng:-99.109},
+  {id:'San_Andres_Tomatlan',l:'12',o:11,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:0,lat:19.3283,lng:-99.1049},
+  {id:'Lomas_Estrella',l:'12',o:12,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:6344,lat:19.324,lng:-99.095},
+  {id:'Calle_11',l:'12',o:13,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:4600,lat:19.3205,lng:-99.0857},
+  {id:'Periferico_Oriente',l:'12',o:14,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:0,lat:19.3177,lng:-99.0746},
+  {id:'Tezonco',l:'12',o:15,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:5365,lat:19.306111,lng:-99.065},
+  {id:'Olivos',l:'12',o:16,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:5099,lat:19.304167,lng:-99.059722},
+  {id:'Nopalera',l:'12',o:17,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:6070,lat:19.3,lng:-99.046667},
+  {id:'Zapotitlan_12',l:'12',o:18,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:3855,lat:19.296667,lng:-99.034444},
+  {id:'Tlaltenco',l:'12',o:19,t:'Intermedia',ev:'Si',ee:'Si',ac:'Si',af:2442,lat:19.294167,lng:-99.023889},
+  {id:'Tlahuac',l:'12',o:20,t:'Terminal',ev:'Si',ee:'Si',ac:'Si',af:2385,lat:19.286256,lng:-99.014114},
+  {id:'Pantitlan_A',l:'A',o:1,t:'Terminal_Transbordo',ev:'Si',ee:'No',ac:'No',af:4922,lat:19.415359,lng:-99.072132},
+  {id:'Agricola_Oriental',l:'A',o:2,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:8263,lat:19.404835,lng:-99.069901},
+  {id:'Canal_de_San_Juan',l:'A',o:3,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6825,lat:19.398683,lng:-99.059365},
+  {id:'Tepalcates',l:'A',o:4,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:4377,lat:19.391335,lng:-99.046383},
+  {id:'Guelatao',l:'A',o:5,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:4685,lat:19.385162,lng:-99.03574},
+  {id:'Penon_Viejo',l:'A',o:6,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:5097,lat:19.37332,lng:-99.017093},
+  {id:'Acatitla',l:'A',o:7,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6082,lat:19.364737,lng:-99.005892},
+  {id:'Santa_Martha',l:'A',o:8,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:4822,lat:19.36,lng:-98.994863},
+  {id:'Los_Reyes',l:'A',o:9,t:'Terminal',ev:'No',ee:'No',ac:'No',af:0,lat:19.358968,lng:-98.976903},
+  {id:'La_Paz',l:'A',o:10,t:'Terminal',ev:'Si',ee:'No',ac:'No',af:0,lat:19.350526,lng:-98.960745},
+  {id:'Buenavista',l:'B',o:1,t:'Terminal',ev:'Si',ee:'No',ac:'No',af:9081,lat:19.446603,lng:-99.153199},
+  {id:'Guerrero_B',l:'B',o:2,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:7925,lat:19.445146,lng:-99.145389},
+  {id:'Garibaldi_B',l:'B',o:3,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:8936,lat:19.444458,lng:-99.139724},
+  {id:'Lagunilla',l:'B',o:4,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:9145,lat:19.443386,lng:-99.131334},
+  {id:'Tepito',l:'B',o:5,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:10200,lat:19.442495,lng:-99.12333},
+  {id:'Morelos_B',l:'B',o:6,t:'Transbordo',ev:'No',ee:'Si',ac:'No',af:8096,lat:19.438974,lng:-99.118266},
+  {id:'San_Lazaro_B',l:'B',o:7,t:'Transbordo',ev:'Si',ee:'Si',ac:'Si',af:6750,lat:19.430213,lng:-99.114833},
+  {id:'Ricardo_Flores_Magon',l:'B',o:8,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6598,lat:19.436567,lng:-99.103675},
+  {id:'Romero_Rubio',l:'B',o:9,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:6129,lat:19.440735,lng:-99.094362},
+  {id:'Oceania_B',l:'B',o:10,t:'Transbordo',ev:'No',ee:'No',ac:'No',af:5861,lat:19.445672,lng:-99.087238},
+  {id:'Deportivo_Oceania',l:'B',o:11,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:2975,lat:19.451034,lng:-99.07917},
+  {id:'Bosque_de_Aragon',l:'B',o:12,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:3310,lat:19.458115,lng:-99.069192},
+  {id:'Villa_de_Aragon',l:'B',o:13,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:2098,lat:19.461656,lng:-99.061704},
+  {id:'Nezahuacoyotl',l:'B',o:14,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:1224,lat:19.473066,lng:-99.054537},
+  {id:'Impulsora',l:'B',o:15,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:0,lat:19.485851,lng:-99.048915},
+  {id:'Rio_de_los_Remedios',l:'B',o:16,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:0,lat:19.490908,lng:-99.046597},
+  {id:'Muzquiz',l:'B',o:17,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:0,lat:19.501629,lng:-99.042048},
+  {id:'Ecatepec',l:'B',o:18,t:'Intermedia',ev:'Si',ee:'No',ac:'No',af:0,lat:19.515301,lng:-99.035997},
+  {id:'Olimpica',l:'B',o:19,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:0,lat:19.521328,lng:-99.033422},
+  {id:'Plaza_Aragon',l:'B',o:20,t:'Intermedia',ev:'No',ee:'No',ac:'No',af:0,lat:19.528447,lng:-99.030118},
+  {id:'Ciudad_Azteca',l:'B',o:21,t:'Terminal',ev:'Si',ee:'No',ac:'No',af:0,lat:19.534595,lng:-99.0275}
+];
+
+const EDGES = [
+  ['Observatorio','Tacubaya_1','1'],['Tacubaya_1','Juanacatlan','1'],['Juanacatlan','Chapultepec','1'],
+  ['Chapultepec','Sevilla','1'],['Sevilla','Insurgentes','1'],['Insurgentes','Cuauhtemoc','1'],
+  ['Cuauhtemoc','Balderas_1','1'],['Balderas_1','Salto_del_Agua_1','1'],['Salto_del_Agua_1','Isabel_la_Catolica','1'],
+  ['Isabel_la_Catolica','Pino_Suarez_1','1'],['Pino_Suarez_1','Merced','1'],['Merced','Candelaria_1','1'],
+  ['Candelaria_1','San_Lazaro_1','1'],['San_Lazaro_1','Moctezuma','1'],['Moctezuma','Balbuena','1'],
+  ['Balbuena','Boulevard_Puerto_Aereo','1'],['Boulevard_Puerto_Aereo','Gomez_Farias','1'],['Gomez_Farias','Zaragoza','1'],
+  ['Zaragoza','Pantitlan_1','1'],
+  ['Cuatro_Caminos','Panteones','2'],['Panteones','Tacuba_2','2'],['Tacuba_2','Cuitlahuac','2'],
+  ['Cuitlahuac','Popotla','2'],['Popotla','Colegio_Militar','2'],['Colegio_Militar','Normal','2'],
+  ['Normal','San_Cosme','2'],['San_Cosme','Revolucion','2'],['Revolucion','Hidalgo_2','2'],
+  ['Hidalgo_2','Bellas_Artes_2','2'],['Bellas_Artes_2','Allende','2'],['Allende','Zocalo','2'],
+  ['Zocalo','Pino_Suarez_2','2'],['Pino_Suarez_2','San_Antonio_Abad','2'],['San_Antonio_Abad','Chabacano_2','2'],
+  ['Chabacano_2','Viaducto','2'],['Viaducto','Xola','2'],['Xola','Villa_de_Cortes','2'],
+  ['Villa_de_Cortes','Nativitas','2'],['Nativitas','Portales','2'],['Portales','Ermita_2','2'],
+  ['Ermita_2','General_Anaya','2'],['General_Anaya','Tasquena','2'],
+  ['Indios_Verdes','Deportivo_18_de_Marzo_3','3'],['Deportivo_18_de_Marzo_3','Potrero','3'],
+  ['Potrero','La_Raza_3','3'],['La_Raza_3','Tlatelolco','3'],['Tlatelolco','Guerrero_3','3'],
+  ['Guerrero_3','Hidalgo_3','3'],['Hidalgo_3','Juarez','3'],['Juarez','Balderas_3','3'],
+  ['Balderas_3','Ninos_Heroes','3'],['Ninos_Heroes','Hospital_General','3'],['Hospital_General','Centro_Medico_3','3'],
+  ['Centro_Medico_3','Etiopia','3'],['Etiopia','Eugenia','3'],['Eugenia','Division_del_Norte','3'],
+  ['Division_del_Norte','Zapata_3','3'],['Zapata_3','Coyoacan','3'],['Coyoacan','Viveros','3'],
+  ['Viveros','Miguel_Angel_de_Quevedo','3'],['Miguel_Angel_de_Quevedo','Copilco','3'],['Copilco','Universidad','3'],
+  ['Martin_Carrera_4','Talisman','4'],['Talisman','Bondojito','4'],['Bondojito','Consulado_4','4'],
+  ['Consulado_4','Canal_del_Norte','4'],['Canal_del_Norte','Morelos_4','4'],['Morelos_4','Candelaria_4','4'],
+  ['Candelaria_4','Fray_Servando','4'],['Fray_Servando','Jamaica_4','4'],['Jamaica_4','Santa_Anita_4','4'],
+  ['Politecnico','Instituto_del_Petroleo_5','5'],['Instituto_del_Petroleo_5','Autobuses_del_Norte','5'],
+  ['Autobuses_del_Norte','La_Raza_5','5'],['La_Raza_5','Misterios','5'],['Misterios','Valle_Gomez','5'],
+  ['Valle_Gomez','Consulado_5','5'],['Consulado_5','Eduardo_Molina','5'],['Eduardo_Molina','Aragon','5'],
+  ['Aragon','Oceania_5','5'],['Oceania_5','Terminal_Aerea','5'],['Terminal_Aerea','Hangares','5'],['Hangares','Pantitlan_5','5'],
+  ['El_Rosario_6','Tezozomoc','6'],['Tezozomoc','Azcapotzalco','6'],['Azcapotzalco','Ferreria','6'],
+  ['Ferreria','Norte_45','6'],['Norte_45','Vallejo','6'],['Vallejo','Instituto_del_Petroleo_6','6'],
+  ['Instituto_del_Petroleo_6','Lindavista','6'],['Lindavista','Deportivo_18_de_Marzo_6','6'],
+  ['Deportivo_18_de_Marzo_6','La_Villa','6'],['La_Villa','Martin_Carrera_6','6'],
+  ['El_Rosario_7','Aquiles_Serdan','7'],['Aquiles_Serdan','Camarones','7'],['Camarones','Refineria','7'],
+  ['Refineria','Tacuba_7','7'],['Tacuba_7','San_Joaquin','7'],['San_Joaquin','Polanco','7'],
+  ['Polanco','Auditorio','7'],['Auditorio','Constituyentes','7'],['Constituyentes','Tacubaya_7','7'],
+  ['Tacubaya_7','San_Pedro_de_los_Pinos','7'],['San_Pedro_de_los_Pinos','San_Antonio','7'],
+  ['San_Antonio','Mixcoac_7','7'],['Mixcoac_7','Barranca_del_Muerto','7'],
+  ['Garibaldi_8','Bellas_Artes_8','8'],['Bellas_Artes_8','San_Juan_de_Letran','8'],
+  ['San_Juan_de_Letran','Salto_del_Agua_8','8'],['Salto_del_Agua_8','Doctores','8'],
+  ['Doctores','Obrera','8'],['Obrera','Chabacano_8','8'],['Chabacano_8','La_Viga','8'],
+  ['La_Viga','Santa_Anita_8','8'],['Santa_Anita_8','Coyuya','8'],['Coyuya','Iztacalco','8'],
+  ['Iztacalco','Apatlaco','8'],['Apatlaco','Aculco','8'],['Aculco','Escuadron_201','8'],
+  ['Escuadron_201','Atlalilco_8','8'],['Atlalilco_8','Iztapalapa','8'],['Iztapalapa','Cerro_de_la_Estrella','8'],
+  ['Cerro_de_la_Estrella','UAM','8'],['UAM','Constitucion_de_1917','8'],
+  ['Tacubaya_9','Patriotismo','9'],['Patriotismo','Chilpancingo','9'],['Chilpancingo','Centro_Medico_9','9'],
+  ['Centro_Medico_9','Lazaro_Cardenas','9'],['Lazaro_Cardenas','Chabacano_9','9'],
+  ['Chabacano_9','Jamaica_9','9'],['Jamaica_9','Mixiuhca','9'],['Mixiuhca','Velodromo','9'],
+  ['Velodromo','Ciudad_Deportiva','9'],['Ciudad_Deportiva','Puebla','9'],['Puebla','Pantitlan_9','9'],
+  ['Mixcoac_12','Insugentes_Sur','12'],['Insugentes_Sur','Hospital_20_de_Noviembre','12'],
+  ['Hospital_20_de_Noviembre','Zapata_12','12'],['Zapata_12','Parque_de_los_Venados','12'],
+  ['Parque_de_los_Venados','Eje_Central','12'],['Eje_Central','Ermita_12','12'],
+  ['Ermita_12','Mexilcalcingo','12'],['Mexilcalcingo','Atlalilco_12','12'],
+  ['Atlalilco_12','Culhuacan','12'],['Culhuacan','San_Andres_Tomatlan','12'],
+  ['San_Andres_Tomatlan','Lomas_Estrella','12'],['Lomas_Estrella','Calle_11','12'],
+  ['Calle_11','Periferico_Oriente','12'],['Periferico_Oriente','Tezonco','12'],
+  ['Tezonco','Olivos','12'],['Olivos','Nopalera','12'],['Nopalera','Zapotitlan_12','12'],
+  ['Zapotitlan_12','Tlaltenco','12'],['Tlaltenco','Tlahuac','12'],
+  ['Pantitlan_A','Agricola_Oriental','A'],['Agricola_Oriental','Canal_de_San_Juan','A'],
+  ['Canal_de_San_Juan','Tepalcates','A'],['Tepalcates','Guelatao','A'],['Guelatao','Penon_Viejo','A'],
+  ['Penon_Viejo','Acatitla','A'],['Acatitla','Santa_Martha','A'],['Santa_Martha','Los_Reyes','A'],['Los_Reyes','La_Paz','A'],
+  ['Buenavista','Guerrero_B','B'],['Guerrero_B','Garibaldi_B','B'],['Garibaldi_B','Lagunilla','B'],
+  ['Lagunilla','Tepito','B'],['Tepito','Morelos_B','B'],['Morelos_B','San_Lazaro_B','B'],
+  ['San_Lazaro_B','Ricardo_Flores_Magon','B'],['Ricardo_Flores_Magon','Romero_Rubio','B'],
+  ['Romero_Rubio','Oceania_B','B'],['Oceania_B','Deportivo_Oceania','B'],
+  ['Deportivo_Oceania','Bosque_de_Aragon','B'],['Bosque_de_Aragon','Villa_de_Aragon','B'],
+  ['Villa_de_Aragon','Nezahuacoyotl','B'],['Nezahuacoyotl','Impulsora','B'],
+  ['Impulsora','Rio_de_los_Remedios','B'],['Rio_de_los_Remedios','Muzquiz','B'],
+  ['Muzquiz','Ecatepec','B'],['Ecatepec','Olimpica','B'],['Olimpica','Plaza_Aragon','B'],['Plaza_Aragon','Ciudad_Azteca','B']
+];
+
+const LINE_COLORS = {
+  '1':'#E4538F','2':'#0069A7','3':'#A08C00','4':'#5BB5A7','5':'#C8A900',
+  '6':'#D63028','7':'#E86820','8':'#0F7A42','9':'#704030','12':'#C4A000',
+  'A':'#922882','B':'#808080'
+};
+const LINE_NAMES = {
+  '1':'Línea 1','2':'Línea 2','3':'Línea 3','4':'Línea 4','5':'Línea 5','6':'Línea 6',
+  '7':'Línea 7','8':'Línea 8','9':'Línea 9','12':'Línea 12','A':'Línea A','B':'Línea B'
+};
+const LINE_ORDER = ['1','2','3','4','5','6','7','8','9','12','A','B'];
+
+function displayName(id) {
+  return id.replace(/_\d+$/, '').replace(/_[A-B]$/, '').replace(/_/g,' ');
+}
+
+const svg = d3.select('#map-svg');
+const tooltip = document.getElementById('tooltip');
+let currentView = 'acc';
+let zoomBehavior;
+
+function nodeColor(n) {
+  if (currentView === 'acc') return n.ac === 'Si' ? '#2a985a' : '#ffffff';
+  if (currentView === 'flu') return d3.interpolateBlues(0.15 + (n.af / 10200) * 0.85);
+  return '#ffffff';
+}
+
+function nodeBorder(n) {
+  if (currentView === 'net') return LINE_COLORS[n.l] || '#888';
+  return n.ac === 'Si' ? '#1c7040' : '#cc3300';
+}
+
+function buildMap() {
+  const W = document.getElementById('map-wrap').clientWidth;
+  const H = document.getElementById('map-wrap').clientHeight;
+  svg.attr('viewBox', `0 0 ${W} ${H}`);
+
+  const pad = 40;
+  const lngExt = d3.extent(NODES, d => d.lng);
+  const latExt = d3.extent(NODES, d => d.lat);
+  const lngRange = lngExt[1] - lngExt[0];
+  const latRange = latExt[1] - latExt[0];
+  const scale = Math.min((W - pad*2) / lngRange, (H - pad*2) / latRange);
+  const offX = (W - lngRange * scale) / 2;
+  const offY = (H - latRange * scale) / 2;
+
+  const px = lng => (lng - lngExt[0]) * scale + offX;
+  const py = lat => (latExt[1] - lat) * scale + offY;
+
+  const nodeMap = new Map(NODES.map(n => [n.id, n]));
+
+  const byLoc = new Map();
+  NODES.forEach(n => {
+    const k = `${n.lat.toFixed(5)},${n.lng.toFixed(5)}`;
+    if (!byLoc.has(k)) byLoc.set(k, []);
+    byLoc.get(k).push(n);
+  });
+
+  svg.selectAll('*').remove();
+  const g = svg.append('g').attr('class', 'map-root');
+
+  g.append('rect').attr('width', W).attr('height', H).attr('fill', '#ffffff');
+
+  const gridG = g.append('g').attr('opacity', 0.25);
+  const step = 0.05;
+  for (let lng = Math.ceil(lngExt[0]/step)*step; lng <= lngExt[1]; lng += step) {
+    gridG.append('line').attr('x1',px(lng)).attr('x2',px(lng)).attr('y1',0).attr('y2',H)
+      .attr('stroke','#ddd').attr('stroke-width',0.5);
+  }
+  for (let lat = Math.ceil(latExt[0]/step)*step; lat <= latExt[1]; lat += step) {
+    gridG.append('line').attr('y1',py(lat)).attr('y2',py(lat)).attr('x1',0).attr('x2',W)
+      .attr('stroke','#ddd').attr('stroke-width',0.5);
+  }
+
+  const linesG = g.append('g');
+  LINE_ORDER.forEach(linea => {
+    EDGES.filter(e => e[2] === linea).forEach(([src, tgt]) => {
+      const s = nodeMap.get(src), t = nodeMap.get(tgt);
+      if (!s || !t) return;
+      linesG.append('line')
+        .attr('x1',px(s.lng)).attr('y1',py(s.lat))
+        .attr('x2',px(t.lng)).attr('y2',py(t.lat))
+        .attr('stroke', LINE_COLORS[linea])
+        .attr('stroke-width', 5)
+        .attr('stroke-linecap','round');
+    });
+  });
+
+  const nodesG = g.append('g');
+
+  byLoc.forEach((nodes) => {
+    const rep = nodes[0];
+    const isTransfer = nodes.some(n => n.t.includes('Transbordo')) || nodes.length > 1;
+    if (!isTransfer) return;
+    nodesG.append('circle')
+      .attr('cx',px(rep.lng)).attr('cy',py(rep.lat)).attr('r',10)
+      .attr('fill','none').attr('stroke','#ccc').attr('stroke-width',1.5)
+      .attr('stroke-dasharray','3 2').attr('pointer-events','none');
+  });
+
+  byLoc.forEach((nodes, key) => {
+    const rep = nodes[0];
+    const isTransfer = nodes.some(n => n.t.includes('Transbordo')) || nodes.length > 1;
+    const isTerminal = nodes.some(n => n.t.includes('Terminal'));
+    const r = isTransfer ? 7 : isTerminal ? 6 : 4.5;
+    const anyAcc = nodes.some(n => n.ac === 'Si');
+    const maxAf = Math.max(...nodes.map(n => n.af || 0));
+    const pseudo = {...rep, ac: anyAcc ? 'Si' : 'No', af: maxAf};
+
+    nodesG.append('circle')
+      .attr('cx',px(rep.lng)).attr('cy',py(rep.lat)).attr('r',r)
+      .attr('fill', nodeColor(pseudo))
+      .attr('stroke', nodeBorder(pseudo))
+      .attr('stroke-width', isTransfer ? 2 : 1.5)
+      .attr('class','station-dot').attr('data-key', key)
+      .style('cursor','pointer')
+      .on('mousemove', (evt) => {
+        const names = [...new Set(nodes.map(n => displayName(n.id)))].join(' / ');
+        const lines = [...new Set(nodes.map(n => LINE_NAMES[n.l]))].join(', ');
+        const accTxt = anyAcc
+          ? '<span style="color:#2a985a;font-weight:600">✓ Accesible</span>'
+          : '<span style="color:#cc3300;font-weight:600">✗ No accesible</span>';
+        const flu = maxAf > 0 ? `${maxAf.toLocaleString('es-MX')} personas/día` : '—';
+        tooltip.innerHTML = `<div class="ttn">${names}</div><div class="ttl">${lines}</div><div class="tta">${accTxt}</div><div class="ttf">Afluencia: ${flu}</div>`;
+        tooltip.style.opacity = '1';
+        tooltip.style.left = `${evt.clientX + 14}px`;
+        tooltip.style.top = `${evt.clientY - 10}px`;
+      })
+      .on('mouseleave', () => { tooltip.style.opacity = '0'; });
+  });
+
+  const badgeG = g.append('g').attr('pointer-events','none');
+  LINE_ORDER.forEach(linea => {
+    const terminals = NODES.filter(n => n.l === linea && n.t.includes('Terminal'));
+    if (!terminals.length) return;
+    const rep = terminals[0];
+    const bg = badgeG.append('g').attr('transform',`translate(${px(rep.lng)},${py(rep.lat) - 14})`);
+    bg.append('rect').attr('x',-8).attr('y',-7).attr('width',16).attr('height',12)
+      .attr('rx',2).attr('fill', LINE_COLORS[linea]);
+    bg.append('text').attr('class','map-badge').attr('dy','0.1em')
+      .attr('fill','#fff').text(linea.length > 1 ? linea : `L${linea}`);
+  });
+
+  zoomBehavior = d3.zoom().scaleExtent([0.4,10])
+    .on('zoom', evt => g.attr('transform', evt.transform));
+  svg.call(zoomBehavior);
+  svg.call(zoomBehavior.transform, d3.zoomIdentity);
+}
+
+function refreshDots() {
+  const byLoc = new Map();
+  NODES.forEach(n => {
+    const k = `${n.lat.toFixed(5)},${n.lng.toFixed(5)}`;
+    if (!byLoc.has(k)) byLoc.set(k, []);
+    byLoc.get(k).push(n);
+  });
+  d3.selectAll('.station-dot').each(function() {
+    const nodes = byLoc.get(this.getAttribute('data-key')) || [];
+    const anyAcc = nodes.some(n => n.ac === 'Si');
+    const maxAf = Math.max(...nodes.map(n => n.af || 0));
+    const pseudo = {...(nodes[0]||{}), ac: anyAcc?'Si':'No', af: maxAf};
+    d3.select(this).attr('fill', nodeColor(pseudo)).attr('stroke', nodeBorder(pseudo));
+  });
+}
+
+function buildSidebar() {
+  const ll = document.getElementById('llist');
+  ll.innerHTML = '';
+  LINE_ORDER.forEach(linea => {
+    const nodes = NODES.filter(n => n.l === linea);
+    const pct = Math.round(nodes.filter(n => n.ac === 'Si').length / nodes.length * 100);
+    const row = document.createElement('div');
+    row.className = 'lrow';
+    row.innerHTML = `<div class="lswatch" style="width:18px;background:${LINE_COLORS[linea]}"></div><span class="lname">${LINE_NAMES[linea]}</span><span class="lpct">${pct}%</span>`;
+    ll.appendChild(row);
+  });
+
+  const sw = document.getElementById('stats');
+  sw.innerHTML = '';
+  LINE_ORDER.forEach(linea => {
+    const nodes = NODES.filter(n => n.l === linea);
+    const acc = nodes.filter(n => n.ac === 'Si').length;
+    const pct = Math.round(acc / nodes.length * 100);
+    const col = LINE_COLORS[linea];
+    const barCol = pct > 60 ? '#2a985a' : pct > 30 ? '#c07a00' : '#cc3300';
+    const item = document.createElement('div');
+    item.className = 'stat-item';
+    item.innerHTML = `<div class="stat-head"><span class="stat-lbl"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0"></span>${LINE_NAMES[linea]}</span><span class="stat-val">${acc}/${nodes.length}</span></div><div class="mbar"><div class="mbar-fill" style="width:${pct}%;background:${barCol}"></div></div>`;
+    sw.appendChild(item);
+  });
+}
+
+document.querySelectorAll('.vbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.vbtn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    currentView = btn.dataset.view;
+    refreshDots();
+    document.getElementById('acc-leg').style.display = currentView === 'acc' ? '' : 'none';
+  });
+});
+
+document.getElementById('zi').addEventListener('click', () => svg.transition().duration(300).call(zoomBehavior.scaleBy, 1.5));
+document.getElementById('zo').addEventListener('click', () => svg.transition().duration(300).call(zoomBehavior.scaleBy, 0.67));
+document.getElementById('zr').addEventListener('click', () => svg.transition().duration(400).call(zoomBehavior.transform, d3.zoomIdentity));
+
+buildMap();
+buildSidebar();
+window.addEventListener('resize', buildMap);
+</script>
+</body>
+</html>

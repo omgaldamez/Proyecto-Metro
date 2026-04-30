@@ -9,7 +9,16 @@
       "Bash(awk 'NR>=591 && NR<=602' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
       "Bash(awk 'NR>=605 && NR<=630' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
       "Bash(awk 'NR>=647 && NR<=672' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
-      "Bash(awk 'NR>=753 && NR<=772' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")"
+      "Bash(awk 'NR>=753 && NR<=772' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/index.html\")",
+      "Read(//Users/monicadamazo/Desktop/dvd/**)",
+      "Read(//Users/monicadamazo/Documents/CENTRO/**)",
+      "Bash(curl -L \"https://raw.githubusercontent.com/Monnhelen/Proyecto-Metro/main/foto1.jpg\" -o \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/foto1.jpg\")",
+      "Bash(curl -L \"https://raw.githubusercontent.com/Monnhelen/Proyecto-Metro/main/imageneditada.jpg\" -o \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/foto1.jpg\")",
+      "Bash(curl -L \"https://raw.githubusercontent.com/Monnhelen/Proyecto-Metro/main/editadanegro.jpg\" -o \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/foto1.jpg\")",
+      "Bash(curl -L \"https://raw.githubusercontent.com/Monnhelen/Proyecto-Metro/main/editadablanco.jpg\" -o \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/foto1.jpg\")",
+      "Bash(git checkout *)",
+      "Bash(head -n 2671 \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/intro.html\")",
+      "Bash(mv /tmp/intro_clean.html \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/intro.html\")"
     ]
   }
 }

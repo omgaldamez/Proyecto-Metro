@@ -5,14 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metro CDMX — Accesibilidad</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+@font-face{
+  font-family:'tipo_metro_cdmx_regular';
+  src:url('Tipograf%C3%ADas/Metro/Web%20Fonts/tipometrocdmx_regular_macroman/tipo_metro_cdmx_regular-webfont.woff2') format('woff2'),
+      url('Tipograf%C3%ADas/Metro/Web%20Fonts/tipometrocdmx_regular_macroman/tipo_metro_cdmx_regular-webfont.woff') format('woff');
+  font-weight:normal;font-style:normal;
+}
 :root{
-  --bg:#F4F3E9;--panel:#ECEADC;--card:#E4E2D4;--border:rgba(4,4,4,.1);
+  --bg:#faf9f6;--panel:#f0efe9;--card:#e6e5de;--border:rgba(4,4,4,.1);
   --text:#040404;--text2:rgba(4,4,4,.56);--text3:rgba(4,4,4,.38);
-  --accent:#1939FF;--green:#66bb6a;--orange:#FF5808;--red:#ef5350;
+  --accent:#040404;--green:#66bb6a;--orange:#FF5808;--red:#ef5350;
   --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;--serif:'DM Sans',sans-serif;
+  --metro:'tipo_metro_cdmx_regular',sans-serif;
   --ink:#040404;--col:700px;
 }
 html,body{height:100%;overflow:hidden}
@@ -21,7 +30,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .logo{font-family:var(--sans);font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
 .logo span{color:var(--accent)}
 .nav-back{font-family:var(--sans);font-size:.52rem;padding:3px 8px;border-radius:3px;border:1px solid rgba(4,4,4,.14);color:var(--text3);text-decoration:none;transition:color .15s}
-.nav-back:hover{color:#1939FF;border-color:#1939FF}
+.nav-back:hover{color:#040404;border-color:#040404}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 /* ── V3: Dot-plot afluencia + accesibilidad ── */
@@ -74,7 +83,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 ═══════════════════════════════════════════════ */
 #nav{
   position:fixed;top:2px;left:0;right:0;
-  background:rgba(244,243,233,.96);
+  background:rgba(250,249,246,.96);
   backdrop-filter:blur(12px);
   border-bottom:1px solid rgba(4,4,4,.1);
   padding:9px 24px;
@@ -86,25 +95,28 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   transition:opacity .3s;
 }
 #nav.show{opacity:1}
-#nav .nav-logo{color:#1939FF;font-weight:700;font-size:.58rem;letter-spacing:.1em}
+#nav .nav-logo{color:#040404;font-weight:700;font-size:.58rem;letter-spacing:.1em}
 #nav .nav-title{color:var(--text2)}
 #nav .nav-back{
   color:var(--text3);text-decoration:none;cursor:pointer;
   transition:color .15s;padding:3px 8px;
   border:1px solid rgba(4,4,4,.14);border-radius:3px;font-size:.52rem;
 }
-#nav .nav-back:hover{color:#1939FF;border-color:#1939FF}
+#nav .nav-back:hover{color:#040404;border-color:#040404}
 
 /* ═══════════════════════════════════════════════
    HERO
 ═══════════════════════════════════════════════ */
 #hero{
-  min-height:auto;
+  min-height:100vh;
   display:flex;
   flex-direction:column;
-  justify-content:flex-end;
+  justify-content:center;
   padding:0;
-  background:var(--bg);
+  background-image:url('Foto/imglargaaaa.jpg');
+  background-size:cover;
+  background-position:85% center;
+  background-repeat:no-repeat;
   border-top:3px solid var(--accent);
   border-bottom:1px solid var(--border);
   position:relative;
@@ -113,35 +125,20 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
 #hero-bg{
   position:absolute;inset:0;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(25,57,255,.025) 0px, rgba(25,57,255,.025) 1px,
-      transparent 1px, transparent 80px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(25,57,255,.025) 0px, rgba(25,57,255,.025) 1px,
-      transparent 1px, transparent 80px
-    );
+  background:rgba(255,255,255,0.18);
   z-index:0;
 }
 
-/* Metro line decorations */
-#hero-lines{
-  position:absolute;inset:0;
-  z-index:1;
-  pointer-events:none;
-  overflow:hidden;
-}
-#hero-lines svg{ width:100%;height:100%;opacity:.06 }
-
 #hero-content{
   position:relative;z-index:2;
-  max-width:var(--col);
-  margin:0 auto;
-  width:100%;
-  padding:clamp(2.5rem,5vw,4rem) 2rem clamp(2rem,4vw,3rem);
+  width:44%;
+  margin-left:6%;
+  margin-right:auto;
+  padding:80px 0;
+}
+
+@media(max-width:768px){
+  #hero-content{ width:90%;margin:0 auto;padding:60px 24px; }
 }
 
 .hero-kicker{
@@ -150,20 +147,21 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   font-weight:500;
   letter-spacing:.22em;
   text-transform:uppercase;
-  color:var(--accent);
+  color:rgba(4,4,4,0.55);
   margin-bottom:.9rem;
   opacity:0;
   animation:fadeUp .6s .1s forwards;
 }
 
 .hero-hl{
-  font-family:var(--sans);
-  font-size:clamp(1.5rem,2.8vw,2.4rem);
-  font-weight:800;
-  line-height:1.1;
-  color:var(--text);
+  font-family:var(--metro);
+  font-size:clamp(1.6rem,3vw,2.6rem);
+  font-weight:normal;
+  line-height:1.08;
+  color:#040404;
+  text-transform:uppercase;
+  letter-spacing:.01em;
   margin-bottom:.9rem;
-  letter-spacing:-.01em;
   opacity:0;
   animation:fadeUp .7s .25s forwards;
 }
@@ -177,7 +175,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   font-size:clamp(.85rem,1.3vw,.95rem);
   font-weight:400;
   line-height:1.65;
-  color:var(--text2);
+  color:rgba(4,4,4,0.68);
   max-width:520px;
   margin-bottom:1.6rem;
   opacity:0;
@@ -187,18 +185,18 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .hero-meta{
   display:flex;flex-wrap:wrap;gap:.4rem 1.4rem;
   font-family:var(--sans);font-size:.6rem;font-weight:400;
-  color:var(--text3);
-  border-top:1px solid var(--border);
+  color:rgba(4,4,4,0.45);
+  border-top:1px solid rgba(4,4,4,.15);
   padding-top:.9rem;
   opacity:0;
   animation:fadeUp .6s .65s forwards;
 }
-.hero-meta strong{color:var(--text2);font-weight:600}
+.hero-meta strong{color:rgba(4,4,4,.7);font-weight:600}
 
 .hero-scroll-cue{
   display:flex;align-items:center;gap:.5rem;
   font-family:var(--sans);font-size:.5rem;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--text3);
+  text-transform:uppercase;color:rgba(4,4,4,0.45);
   margin-top:1.2rem;
   opacity:0;
   animation:fadeUp .6s .85s forwards;
@@ -206,7 +204,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .hero-scroll-cue span{
   display:inline-block;
   width:1px;height:20px;
-  background:var(--border);
+  background:rgba(4,4,4,.2);
   animation:scrollPulse 2s 1.5s infinite;
 }
 
@@ -458,15 +456,18 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   color:var(--text3);letter-spacing:.06em;
 }
 .rs-canvas-wrap{
-  width:100%;overflow:hidden;
+  overflow:hidden;
   margin:0 -1.4rem;width:calc(100% + 2.8rem);
 }
-.rs-canvas-wrap svg{display:block;width:100%;aspect-ratio:820/520;}
+.rs-map{
+  display:block;width:100%;height:380px;
+  background:var(--panel);
+}
 .rs-caption{
   min-height:3rem;padding:.55rem 0 .3rem;
   border-top:1px solid var(--border);margin-top:.5rem;
 }
-#rs-cap-text-1{
+[id^="rs-cap-text"]{
   font-family:var(--sans);font-size:.8rem;font-weight:400;
   line-height:1.6;color:var(--text2);
   transition:opacity .25s ease;
@@ -759,32 +760,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 <section id="hero">
   <div id="hero-bg"></div>
 
-  <!-- Metro line decoration -->
-  <div id="hero-lines">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <!-- L1 Rosa -->
-      <line x1="0" y1="420" x2="1200" y2="320" stroke="#E4538F" stroke-width="2"/>
-      <!-- L2 Azul -->
-      <line x1="0" y1="180" x2="1200" y2="580" stroke="#0069A7" stroke-width="2"/>
-      <!-- L3 -->
-      <line x1="300" y1="0" x2="500" y2="800" stroke="#928A37" stroke-width="1.5"/>
-      <!-- L12 -->
-      <line x1="0" y1="650" x2="900" y2="450" stroke="#C1A832" stroke-width="2"/>
-      <!-- LA -->
-      <line x1="800" y1="0" x2="1100" y2="800" stroke="#9B2D8E" stroke-width="1.5"/>
-      <!-- L7 -->
-      <line x1="0" y1="300" x2="400" y2="0" stroke="#ED6D26" stroke-width="1.5"/>
-      <!-- L8 -->
-      <line x1="600" y1="800" x2="1200" y2="200" stroke="#118147" stroke-width="1.5"/>
-      <!-- Dots at intersections -->
-      <circle cx="380" cy="388" r="5" fill="#E4538F" opacity=".6"/>
-      <circle cx="420" cy="362" r="4" fill="#0069A7" opacity=".6"/>
-      <circle cx="490" cy="460" r="3" fill="#928A37" opacity=".6"/>
-      <circle cx="650" cy="500" r="5" fill="#C1A832" opacity=".6"/>
-      <circle cx="820" cy="395" r="4" fill="#9B2D8E" opacity=".6"/>
-    </svg>
-  </div>
-
   <div id="hero-content">
     <p class="hero-kicker">Periodismo de datos · Movilidad urbana</p>
     <h1 class="hero-hl">El Metro de la Ciudad<br>de México:<br><em>una deuda con quien más lo necesita</em></h1>
@@ -851,10 +826,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-meta">Línea 5 + Línea 3 &nbsp;·&nbsp; 17 estaciones</div>
         </div>
         <div class="rs-canvas-wrap">
-          <svg id="rs-svg-1" viewBox="0 0 820 520" preserveAspectRatio="xMidYMid meet" aria-label="Mapa radial de ruta Pantitlán a Hospital General">
-            <rect width="820" height="520" fill="var(--panel)" rx="4"/>
-            <g id="rs-g-1"></g>
-          </svg>
+          <div id="rs-map-1" class="rs-map"></div>
         </div>
         <div class="rs-caption">
           <p id="rs-cap-text-1">Desplázate para recorrer la ruta estación por estación.</p>
@@ -905,10 +877,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-meta">Línea 2 + Línea 7 + Línea 12 + Línea 3 &nbsp;·&nbsp; 21 estaciones</div>
         </div>
         <div class="rs-canvas-wrap">
-          <svg id="rs-svg-2" viewBox="0 0 820 520" preserveAspectRatio="xMidYMid meet">
-            <rect width="820" height="520" fill="var(--panel)" rx="4"/>
-            <g id="rs-g-2"></g>
-          </svg>
+          <div id="rs-map-2" class="rs-map"></div>
         </div>
         <div class="rs-caption"><p id="rs-cap-text-2">Desplázate para recorrer la ruta estación por estación.</p></div>
         <div class="rs-legend">
@@ -941,10 +910,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
           <div class="rs-meta">Línea 12 + Línea 7 + Línea 1 &nbsp;·&nbsp; 22 estaciones</div>
         </div>
         <div class="rs-canvas-wrap">
-          <svg id="rs-svg-3" viewBox="0 0 820 520" preserveAspectRatio="xMidYMid meet">
-            <rect width="820" height="520" fill="var(--panel)" rx="4"/>
-            <g id="rs-g-3"></g>
-          </svg>
+          <div id="rs-map-3" class="rs-map"></div>
         </div>
         <div class="rs-caption"><p id="rs-cap-text-3">Desplázate para recorrer la ruta estación por estación.</p></div>
         <div class="rs-legend">
@@ -2502,398 +2468,117 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     'Polanco — destino. Escalera eléctrica, sin elevador.',
   ];
 
-  // Radial projection: polar coords centered on Zócalo (reference, not shown)
-  const ZOCALO_LAT=19.4332,ZOCALO_LNG=-99.1329;
-  const CX=440,CY=270;
-  const OLAT=ZOCALO_LAT,OLON=ZOCALO_LNG;
-  const PX_PER_KM=21;
-  const MAX_KM=8;
-  // Ruta 2 — mismo centro: Zócalo
-  const CX2=440,CY2=270,OLAT2=ZOCALO_LAT,OLON2=ZOCALO_LNG,PKM2=15;
-  const MAX_KM2=14;
-  // Ruta 3 — mismo centro: Zócalo
-  const CX3=440,CY3=270,OLAT3=ZOCALO_LAT,OLON3=ZOCALO_LNG,PKM3=15;
-  const MAX_KM3=14;
+  // ── Leaflet makeRoute factory ─────────────────────────────────────────────
+  function makeRoute(o){
+    const {storyId,mapId,capId,stations,caps}=o;
+    const story=document.getElementById(storyId);
+    const capEl=document.getElementById(capId);
+    const mapEl=document.getElementById(mapId);
+    if(!story||!capEl||!mapEl)return;
 
-  function polar(lat,lng){
-    const d=hav(OLAT,OLON,lat,lng);
-    const b=bearing(OLAT,OLON,lat,lng);
-    const br=b*Math.PI/180;
-    return {x:CX+d*PX_PER_KM*Math.sin(br), y:CY-d*PX_PER_KM*Math.cos(br), d, b};
-  }
+    // ── Leaflet map ──
+    const lmap=L.map(mapEl,{
+      zoomControl:false,attributionControl:false,
+      scrollWheelZoom:false,dragging:false,
+      keyboard:false,doubleClickZoom:false,boxZoom:false,tap:false
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+      subdomains:'abcd',maxZoom:19
+    }).addTo(lmap);
 
-  // Label offset based on bearing from center
-  function lblOff(b,r){
-    const nb=((b%360)+360)%360;
-    const off=r+9;
-    if(nb>=315||nb<45)  return {dx:0,   dy:-off,    ta:'middle'};
-    if(nb>=45&&nb<135)  return {dx:off+2,dy:4,       ta:'start'};
-    if(nb>=135&&nb<225) return {dx:0,   dy:off+5,    ta:'middle'};
-    return                     {dx:-off-2,dy:4,       ta:'end'};
-  }
+    const routeLL=stations.map(st=>[+st.lat,+st.lng]);
+    const bounds=L.latLngBounds(routeLL);
 
-  // Pre-compute positions (all stations placed relative to Zócalo center)
-  R1.forEach(st=>{
-    const p=polar(st.lat,st.lng);st.px=p.x;st.py=p.y;st.dist=p.d;st.bear=p.b;
-  });
-  const N_ST=R1.length;
+    // ── Segments (one polyline per station pair) ──
+    const segLines=stations.slice(1).map((st,i)=>
+      L.polyline([[+stations[i].lat,+stations[i].lng],[+st.lat,+st.lng]],{
+        color:LC2[st.ln]||'#888',weight:5,opacity:0.1,lineCap:'round'
+      }).addTo(lmap)
+    );
 
-  function buildSVG(){
-    let h='';
-
-    // Axis reference lines (faint)
-    h+=`<line x1="${CX}" y1="${CY-MAX_KM*PX_PER_KM}" x2="${CX}" y2="${CY+MAX_KM*PX_PER_KM}" stroke="#888" stroke-width="0.4" opacity="0.1" stroke-dasharray="3,5"/>`;
-    h+=`<line x1="${CX-MAX_KM*PX_PER_KM}" y1="${CY}" x2="${CX+MAX_KM*PX_PER_KM}" y2="${CY}" stroke="#888" stroke-width="0.4" opacity="0.1" stroke-dasharray="3,5"/>`;
-
-    // Distance rings
-    [2,4,6,8,10].forEach((km,i)=>{
-      const r=(km*PX_PER_KM).toFixed(1);
-      const isLast=i===4;
-      h+=`<circle cx="${CX}" cy="${CY}" r="${r}" fill="none" stroke="#888" stroke-width="${isLast?1.0:0.6}" stroke-dasharray="${isLast?'none':'5,4'}" opacity="${isLast?0.2:0.13}"/>`;
-      h+=`<text x="${CX+7}" y="${(CY-km*PX_PER_KM+9).toFixed(1)}" fill="#888" font-size="6.5" font-family="'Space Mono',monospace" opacity="0.45">${km} km</text>`;
+    // ── Station markers ──
+    const stMarkers=stations.map((st,i)=>{
+      const isO=i===0;
+      return L.circleMarker([+st.lat,+st.lng],{
+        radius:isO?8:st.tp==='dest'?8:st.tp==='transfer'?6:5,
+        color:LC2[st.ln]||'#888',
+        weight:isO?0:2,
+        fillColor:isO?(LC2[st.ln]||'#888'):'transparent',
+        fillOpacity:isO?1:0,
+        opacity:isO?1:0
+      }).addTo(lmap);
     });
 
-    // Compass labels
-    const rMax=MAX_KM*PX_PER_KM;
-    h+=`<text x="${CX}" y="${(CY-rMax-5).toFixed(1)}" text-anchor="middle" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">N</text>`;
-    h+=`<text x="${CX}" y="${(CY+rMax+13).toFixed(1)}" text-anchor="middle" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">S</text>`;
-    h+=`<text x="${(CX+rMax+7).toFixed(1)}" y="${CY+4}" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">E</text>`;
-    h+=`<text x="${(CX-rMax-7).toFixed(1)}" y="${CY+4}" text-anchor="end" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">O</text>`;
+    let activeRing=null;
+    const N=stations.length;
+    let cur=-2;
 
-    // Background NODES (within MAX_KM)
-    if(typeof NODES!=='undefined'){
-      NODES.forEach(n=>{
-        if(!n.lat||!n.lng)return;
-        const d=hav(OLAT,OLON,+n.lat,+n.lng);
-        if(d>MAX_KM)return;
-        const p=polar(+n.lat,+n.lng);
-        h+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="${LC2[n.Linea]||'#888'}" stroke="var(--bg)" stroke-width="0.5" opacity="0.14"/>`;
+    function go(step){
+      if(step===cur)return; cur=step;
+      const destFinal=step>=N-2;
+
+      segLines.forEach((poly,i)=>{
+        const rev=(i+1)<=step+1;
+        poly.setStyle({color:rev?(LC2[stations[i+1].ln]||'#888'):'#bbb',opacity:rev?0.88:0.1});
       });
+
+      stMarkers.forEach((m,i)=>{
+        const isO=i===0,isD=stations[i].tp==='dest',st=stations[i];
+        const rev=isO||(i<=step+1&&step>=0);
+        if(isO){
+          m.setStyle({opacity:1,fillOpacity:1});
+        } else if(isD){
+          m.setStyle({opacity:destFinal?1:0.25,fillOpacity:destFinal?1:0,
+            fillColor:destFinal?'#66bb6a':'transparent',color:destFinal?'#66bb6a':LC2[st.ln]||'#888'});
+        } else {
+          m.setStyle({opacity:rev?1:0,fillOpacity:rev&&st.acc?0.85:0,
+            fillColor:rev&&st.acc?'#66bb6a':'transparent'});
+        }
+      });
+
+      if(step===-1){
+        lmap.fitBounds(bounds,{padding:[36,36],animate:true});
+        if(activeRing){lmap.removeLayer(activeRing);activeRing=null;}
+      } else {
+        const idx=Math.min(step+1,N-1);
+        const curSt=stations[idx];
+        lmap.panTo([+curSt.lat,+curSt.lng],{animate:true,duration:0.4,easeLinearity:0.5});
+        if(activeRing)lmap.removeLayer(activeRing);
+        activeRing=L.circleMarker([+curSt.lat,+curSt.lng],{
+          radius:16,color:LC2[curSt.ln]||'#888',weight:1.5,
+          fillColor:'transparent',fillOpacity:0,opacity:0.55,interactive:false
+        }).addTo(lmap);
+      }
+
+      const stIdx=Math.max(0,Math.min(step+1,caps.length-1));
+      const st=stations[Math.max(0,Math.min(step+1,N-1))];
+      capEl.style.opacity='0';
+      setTimeout(()=>{
+        let icons='';
+        if(st){
+          if(st.elev)icons+=' <span style="font-size:.72em;opacity:.85">🛗</span>';
+          if(st.ee)  icons+=' <span style="font-size:.72em;opacity:.85">≋</span>';
+          if(st.acc) icons+=' <span style="color:var(--green);font-weight:700;font-size:.8em"> ✓</span>';
+        }
+        capEl.innerHTML=caps[stIdx]+icons;
+        capEl.style.opacity='1';
+      },200);
     }
 
-    // Zócalo center marker (faint cross, no label)
-    h+=`<line x1="${CX-6}" y1="${CY}" x2="${CX+6}" y2="${CY}" stroke="#888" stroke-width="0.8" opacity="0.18"/>`;
-    h+=`<line x1="${CX}" y1="${CY-6}" x2="${CX}" y2="${CY+6}" stroke="#888" stroke-width="0.8" opacity="0.18"/>`;
-
-    // Route segments (initially hidden)
-    R1.forEach((st,i)=>{
-      if(i===0)return;
-      const prev=R1[i-1];
-      h+=`<line class="rs-seg" data-i="${i}" x1="${prev.px.toFixed(1)}" y1="${prev.py.toFixed(1)}" x2="${st.px.toFixed(1)}" y2="${st.py.toFixed(1)}" stroke="${LC2[st.ln]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="transition:opacity .42s ease"/>`;
-    });
-
-    // Route station nodes + labels
-    R1.forEach((st,i)=>{
-      const x=st.px.toFixed(1),y=st.py.toFixed(1);
-      const isO=i===0,isD=st.tp==='dest',isT=st.tp==='transfer';
-      const lc=LC2[st.ln];
-      const r=isO||isD?7:isT?6:5;
-      const initOp=isO?'1':isD?'0.2':'0';
-      // Transfer ring
-      if(isT)h+=`<circle class="rs-ring" data-i="${i}" cx="${x}" cy="${y}" r="${(r+4.5).toFixed(1)}" fill="none" stroke="${lc}" stroke-width="1.1" opacity="0" style="transition:opacity .42s ease"/>`;
-      // Node (interactive)
-      h+=`<circle class="rs-node" data-i="${i}" cx="${x}" cy="${y}" r="${r}" fill="${isO?lc:isD?'none':st.acc?'var(--green)':'none'}" stroke="${lc}" stroke-width="${isO?0:2}" opacity="${initOp}" style="cursor:pointer;transition:opacity .42s ease,fill .42s ease" onmouseenter="sT(event,'${st.id}')" onmousemove="mT(event)" onmouseleave="hT()"/>`;
-      // Label
-      const lo=lblOff(st.bear,r);
-      const lFill=isD?'var(--green)':(st.acc&&!isO)?'var(--green)':'var(--text)';
-      const lOp=isO?'1':isD?'0.22':'0';
-      h+=`<text class="rs-label" data-i="${i}" x="${(st.px+lo.dx).toFixed(1)}" y="${(st.py+lo.dy).toFixed(1)}" text-anchor="${lo.ta}" fill="${lFill}" font-size="${isO||isD?7:5.8}" font-family="'DM Sans',sans-serif" font-weight="${isO||isD?700:400}" opacity="${lOp}" style="transition:opacity .42s ease,fill .42s ease;pointer-events:none">${st.nm}</text>`;
-      // Badge for key stations
-      if(isO||isD||isT){
-        const btxt=isT?'L5→L3':`L${st.ln}`;
-        const bx=(st.px+lo.dx).toFixed(1),by=(st.py+lo.dy+(lo.dy<0?-8:8)).toFixed(1);
-        h+=`<text class="rs-badge" data-i="${i}" x="${bx}" y="${by}" text-anchor="${lo.ta}" fill="${lc}" font-size="5.2" font-family="'Space Mono',monospace" opacity="${isO?'0.75':isD?'0.22':'0'}" style="transition:opacity .42s ease;pointer-events:none">${btxt}</text>`;
-      }
-    });
-
-    return h;
-  }
-
-  function updateSVG(svgEl,step){
-    const destFinal=step>=N_ST-2;
-    R1.forEach((st,i)=>{
-      const isO=i===0,isD=st.tp==='dest',isT=st.tp==='transfer';
-      const revealed=isO||(i<=step+1&&step>=0);
-      const seg=svgEl.querySelector(`.rs-seg[data-i="${i}"]`);
-      if(seg)seg.style.opacity=i<=step+1?'0.92':'0';
-      const ring=svgEl.querySelector(`.rs-ring[data-i="${i}"]`);
-      if(ring)ring.style.opacity=revealed?'0.5':'0';
-      const node=svgEl.querySelector(`.rs-node[data-i="${i}"]`);
-      if(node){
-        if(isO){node.style.opacity='1';}
-        else if(isD){node.setAttribute('fill',destFinal?'var(--green)':'none');node.style.opacity=destFinal?'1':'0.2';}
-        else{node.setAttribute('fill',revealed?(st.acc?'var(--green)':'none'):'none');node.style.opacity=revealed?'1':'0';}
-      }
-      const lbl=svgEl.querySelector(`.rs-label[data-i="${i}"]`);
-      if(lbl){
-        if(isO)lbl.style.opacity='1';
-        else if(isD){lbl.setAttribute('fill','var(--green)');lbl.style.opacity=destFinal?'1':'0.22';}
-        else{lbl.setAttribute('fill',st.acc?'var(--green)':'var(--text)');lbl.style.opacity=revealed?'1':'0';}
-      }
-      const badge=svgEl.querySelector(`.rs-badge[data-i="${i}"]`);
-      if(badge){
-        if(isO)badge.style.opacity='0.75';
-        else if(isD)badge.style.opacity=destFinal?'0.75':'0.22';
-        else if(isT)badge.style.opacity=revealed?'0.75':'0';
-      }
-    });
-  }
-
-  function setCaption(el,txt,st){
-    el.style.opacity='0';
-    setTimeout(()=>{
-      let icons='';
-      if(st){
-        if(st.elev)icons+=' <span style="font-size:.72em;opacity:.85">🛗</span>';
-        if(st.ee)  icons+=' <span style="font-size:.72em;opacity:.85">≋</span>';
-        if(st.acc) icons+=' <span style="color:var(--green);font-weight:700;font-size:.8em"> ✓</span>';
-      }
-      el.innerHTML=txt+icons;
-      el.style.opacity='1';
-    },200);
-  }
-
-  function init(){
-    const story=document.getElementById('rs-story-1');
-    const sticky=document.getElementById('rs-sticky-1');
-    const svgEl=document.getElementById('rs-svg-1');
-    const gEl=document.getElementById('rs-g-1');
-    const capEl=document.getElementById('rs-cap-text-1');
-    if(!story||!svgEl||!capEl)return;
-    if(gEl)gEl.innerHTML=buildSVG();else svgEl.innerHTML=buildSVG();
-    let cur=-2;
-    function go(step){
-      if(step===cur)return;cur=step;
-      updateSVG(svgEl,step);
-      const stIdx1=Math.max(0,Math.min(step+1,R1.length-1));
-      setCaption(capEl,R1_CAPS[Math.max(0,Math.min(step+1,R1_CAPS.length-1))],R1[stIdx1]);
-    }
     go(-1);
     panel.addEventListener('scroll',()=>{
+      const sticky=story.querySelector('.rs-sticky');
       const pR=panel.getBoundingClientRect(),sR=story.getBoundingClientRect();
       const spacer=(pR.top-sR.top)-(sticky?sticky.offsetHeight:400);
-      go(Math.max(-1,Math.min(N_ST-2,Math.floor(spacer/100))));
+      go(Math.max(-1,Math.min(N-2,Math.floor(spacer/100))));
+      lmap.invalidateSize();
     },{passive:true});
-  }
-  init();
-
-  // ─── Ruta 2: Cuatro Caminos → Universidad ──────────────────────────────
-  function polar2(lat,lng){
-    const d=hav(OLAT2,OLON2,lat,lng);
-    const b=bearing(OLAT2,OLON2,lat,lng);
-    const br=b*Math.PI/180;
-    return {x:CX2+d*PKM2*Math.sin(br), y:CY2-d*PKM2*Math.cos(br), d, b};
-  }
-  R2.forEach(st=>{
-    const p=polar2(st.lat,st.lng);st.px=p.x;st.py=p.y;st.dist=p.d;st.bear=p.b;
-  });
-  const N_ST2=R2.length;
-
-  function buildSVG2(){
-    let h='';
-    h+=`<line x1="${CX2}" y1="${CY2-MAX_KM2*PKM2}" x2="${CX2}" y2="${CY2+MAX_KM2*PKM2}" stroke="#888" stroke-width="0.4" opacity="0.1" stroke-dasharray="3,5"/>`;
-    h+=`<line x1="${CX2-MAX_KM2*PKM2}" y1="${CY2}" x2="${CX2+MAX_KM2*PKM2}" y2="${CY2}" stroke="#888" stroke-width="0.4" opacity="0.1" stroke-dasharray="3,5"/>`;
-    [2,4,6,8,10,12,14].forEach(km=>{
-      const r=(km*PKM2).toFixed(1);
-      const isLast=km===MAX_KM2;
-      h+=`<circle cx="${CX2}" cy="${CY2}" r="${r}" fill="none" stroke="#888" stroke-width="${isLast?1.0:0.6}" stroke-dasharray="${isLast?'none':'5,4'}" opacity="${isLast?0.2:0.13}"/>`;
-      h+=`<text x="${CX2+7}" y="${(CY2-km*PKM2+9).toFixed(1)}" fill="#888" font-size="6.5" font-family="'Space Mono',monospace" opacity="0.45">${km} km</text>`;
-    });
-    const rMax2=MAX_KM2*PKM2;
-    h+=`<text x="${CX2}" y="${(CY2-rMax2-5).toFixed(1)}" text-anchor="middle" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">N</text>`;
-    h+=`<text x="${CX2}" y="${(CY2+rMax2+13).toFixed(1)}" text-anchor="middle" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">S</text>`;
-    h+=`<text x="${(CX2+rMax2+7).toFixed(1)}" y="${CY2+4}" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">E</text>`;
-    h+=`<text x="${(CX2-rMax2-7).toFixed(1)}" y="${CY2+4}" text-anchor="end" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">O</text>`;
-    h+=`<line x1="${CX2-6}" y1="${CY2}" x2="${CX2+6}" y2="${CY2}" stroke="#888" stroke-width="0.8" opacity="0.18"/>`;
-    h+=`<line x1="${CX2}" y1="${CY2-6}" x2="${CX2}" y2="${CY2+6}" stroke="#888" stroke-width="0.8" opacity="0.18"/>`;
-    R2.forEach((st,i)=>{
-      if(i===0)return;
-      const prev=R2[i-1];
-      h+=`<line class="rs-seg" data-i="${i}" x1="${prev.px.toFixed(1)}" y1="${prev.py.toFixed(1)}" x2="${st.px.toFixed(1)}" y2="${st.py.toFixed(1)}" stroke="${LC2[st.ln]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="transition:opacity .42s ease"/>`;
-    });
-    R2.forEach((st,i)=>{
-      const x=st.px.toFixed(1),y=st.py.toFixed(1);
-      const isO=i===0,isD=st.tp==='dest',isT=st.tp==='transfer';
-      const lc=LC2[st.ln];
-      const r=isO||isD?7:isT?6:5;
-      const initOp=isO?'1':isD?'0.2':'0';
-      if(isT)h+=`<circle class="rs-ring" data-i="${i}" cx="${x}" cy="${y}" r="${(r+4.5).toFixed(1)}" fill="none" stroke="${lc}" stroke-width="1.1" opacity="0" style="transition:opacity .42s ease"/>`;
-      h+=`<circle class="rs-node" data-i="${i}" cx="${x}" cy="${y}" r="${r}" fill="${isO?lc:isD?'none':st.acc?'var(--green)':'none'}" stroke="${lc}" stroke-width="${isO?0:2}" opacity="${initOp}" style="cursor:pointer;transition:opacity .42s ease,fill .42s ease" onmouseenter="sT(event,'${st.id}')" onmousemove="mT(event)" onmouseleave="hT()"/>`;
-      const lo=lblOff(st.bear,r);
-      const lFill=isD?'var(--green)':(st.acc&&!isO)?'var(--green)':'var(--text)';
-      const lOp=isO?'1':isD?'0.22':'0';
-      h+=`<text class="rs-label" data-i="${i}" x="${(st.px+lo.dx).toFixed(1)}" y="${(st.py+lo.dy).toFixed(1)}" text-anchor="${lo.ta}" fill="${lFill}" font-size="${isO||isD?7:5.8}" font-family="'DM Sans',sans-serif" font-weight="${isO||isD?700:400}" opacity="${lOp}" style="transition:opacity .42s ease,fill .42s ease;pointer-events:none">${st.nm}</text>`;
-      if(isO||isD||isT){
-        const btxt=`L${st.ln}`;
-        const bx=(st.px+lo.dx).toFixed(1),by=(st.py+lo.dy+(lo.dy<0?-8:8)).toFixed(1);
-        h+=`<text class="rs-badge" data-i="${i}" x="${bx}" y="${by}" text-anchor="${lo.ta}" fill="${lc}" font-size="5.2" font-family="'Space Mono',monospace" opacity="${isO?'0.75':isD?'0.22':'0'}" style="transition:opacity .42s ease;pointer-events:none">${btxt}</text>`;
-      }
-    });
-    return h;
+    setTimeout(()=>{lmap.invalidateSize();lmap.fitBounds(bounds,{padding:[36,36]});},160);
   }
 
-  function updateSVG2(svgEl,step){
-    const destFinal=step>=N_ST2-2;
-    R2.forEach((st,i)=>{
-      const isO=i===0,isD=st.tp==='dest',isT=st.tp==='transfer';
-      const revealed=isO||(i<=step+1&&step>=0);
-      const seg=svgEl.querySelector(`.rs-seg[data-i="${i}"]`);
-      if(seg)seg.style.opacity=i<=step+1?'0.92':'0';
-      const ring=svgEl.querySelector(`.rs-ring[data-i="${i}"]`);
-      if(ring)ring.style.opacity=revealed?'0.5':'0';
-      const node=svgEl.querySelector(`.rs-node[data-i="${i}"]`);
-      if(node){
-        if(isO){node.style.opacity='1';}
-        else if(isD){node.setAttribute('fill',destFinal?'var(--green)':'none');node.style.opacity=destFinal?'1':'0.2';}
-        else{node.setAttribute('fill',revealed?(st.acc?'var(--green)':'none'):'none');node.style.opacity=revealed?'1':'0';}
-      }
-      const lbl=svgEl.querySelector(`.rs-label[data-i="${i}"]`);
-      if(lbl){
-        if(isO)lbl.style.opacity='1';
-        else if(isD){lbl.setAttribute('fill','var(--green)');lbl.style.opacity=destFinal?'1':'0.22';}
-        else{lbl.setAttribute('fill',st.acc?'var(--green)':'var(--text)');lbl.style.opacity=revealed?'1':'0';}
-      }
-      const badge=svgEl.querySelector(`.rs-badge[data-i="${i}"]`);
-      if(badge){
-        if(isO)badge.style.opacity='0.75';
-        else if(isD)badge.style.opacity=destFinal?'0.75':'0.22';
-        else if(isT)badge.style.opacity=revealed?'0.75':'0';
-      }
-    });
-  }
-
-  function init2(){
-    const story=document.getElementById('rs-story-2');
-    const sticky=document.getElementById('rs-sticky-2');
-    const svgEl=document.getElementById('rs-svg-2');
-    const gEl=document.getElementById('rs-g-2');
-    const capEl=document.getElementById('rs-cap-text-2');
-    if(!story||!svgEl||!capEl)return;
-    if(gEl)gEl.innerHTML=buildSVG2();else svgEl.innerHTML=buildSVG2();
-    let cur=-2;
-    function go(step){
-      if(step===cur)return;cur=step;
-      updateSVG2(svgEl,step);
-      const stIdx2=Math.max(0,Math.min(step+1,R2.length-1));
-      setCaption(capEl,R2_CAPS[Math.max(0,Math.min(step+1,R2_CAPS.length-1))],R2[stIdx2]);
-    }
-    go(-1);
-    panel.addEventListener('scroll',()=>{
-      const pR=panel.getBoundingClientRect(),sR=story.getBoundingClientRect();
-      const spacer=(pR.top-sR.top)-(sticky?sticky.offsetHeight:400);
-      go(Math.max(-1,Math.min(N_ST2-2,Math.floor(spacer/100))));
-    },{passive:true});
-  }
-  init2();
-
-  // ─── Ruta 3: Constitución de 1917 → Polanco ───────────────────────────
-  function polar3(lat,lng){
-    const d=hav(OLAT3,OLON3,lat,lng);
-    const b=bearing(OLAT3,OLON3,lat,lng);
-    const br=b*Math.PI/180;
-    return {x:CX3+d*PKM3*Math.sin(br), y:CY3-d*PKM3*Math.cos(br), d, b};
-  }
-  R3.forEach(st=>{
-    const p=polar3(st.lat,st.lng);st.px=p.x;st.py=p.y;st.dist=p.d;st.bear=p.b;
-  });
-  const N_ST3=R3.length;
-
-  function buildSVG3(){
-    let h='';
-    h+=`<line x1="${CX3}" y1="${CY3-MAX_KM3*PKM3}" x2="${CX3}" y2="${CY3+MAX_KM3*PKM3}" stroke="#888" stroke-width="0.4" opacity="0.1" stroke-dasharray="3,5"/>`;
-    h+=`<line x1="${CX3-MAX_KM3*PKM3}" y1="${CY3}" x2="${CX3+MAX_KM3*PKM3}" y2="${CY3}" stroke="#888" stroke-width="0.4" opacity="0.1" stroke-dasharray="3,5"/>`;
-    [2,4,6,8,10,12,14,16].forEach(km=>{
-      const r=(km*PKM3).toFixed(1);
-      const isLast=km===MAX_KM3;
-      h+=`<circle cx="${CX3}" cy="${CY3}" r="${r}" fill="none" stroke="#888" stroke-width="${isLast?1.0:0.6}" stroke-dasharray="${isLast?'none':'5,4'}" opacity="${isLast?0.2:0.13}"/>`;
-      h+=`<text x="${CX3+7}" y="${(CY3-km*PKM3+9).toFixed(1)}" fill="#888" font-size="6.5" font-family="'Space Mono',monospace" opacity="0.45">${km} km</text>`;
-    });
-    const rMax3=MAX_KM3*PKM3;
-    h+=`<text x="${CX3}" y="${(CY3-rMax3-5).toFixed(1)}" text-anchor="middle" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">N</text>`;
-    h+=`<text x="${CX3}" y="${(CY3+rMax3+13).toFixed(1)}" text-anchor="middle" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">S</text>`;
-    h+=`<text x="${(CX3+rMax3+7).toFixed(1)}" y="${CY3+4}" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">E</text>`;
-    h+=`<text x="${(CX3-rMax3-7).toFixed(1)}" y="${CY3+4}" text-anchor="end" fill="#888" font-size="7.5" font-family="'Space Mono',monospace" opacity="0.35">O</text>`;
-    h+=`<line x1="${CX3-6}" y1="${CY3}" x2="${CX3+6}" y2="${CY3}" stroke="#888" stroke-width="0.8" opacity="0.18"/>`;
-    h+=`<line x1="${CX3}" y1="${CY3-6}" x2="${CX3}" y2="${CY3+6}" stroke="#888" stroke-width="0.8" opacity="0.18"/>`;
-    R3.forEach((st,i)=>{
-      if(i===0)return;
-      const prev=R3[i-1];
-      h+=`<line class="rs-seg" data-i="${i}" x1="${prev.px.toFixed(1)}" y1="${prev.py.toFixed(1)}" x2="${st.px.toFixed(1)}" y2="${st.py.toFixed(1)}" stroke="${LC2[st.ln]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="transition:opacity .42s ease"/>`;
-    });
-    R3.forEach((st,i)=>{
-      const x=st.px.toFixed(1),y=st.py.toFixed(1);
-      const isO=i===0,isD=st.tp==='dest',isT=st.tp==='transfer';
-      const lc=LC2[st.ln];
-      const r=isO||isD?7:isT?6:5;
-      const initOp=isO?'1':isD?'0.2':'0';
-      if(isT)h+=`<circle class="rs-ring" data-i="${i}" cx="${x}" cy="${y}" r="${(r+4.5).toFixed(1)}" fill="none" stroke="${lc}" stroke-width="1.1" opacity="0" style="transition:opacity .42s ease"/>`;
-      h+=`<circle class="rs-node" data-i="${i}" cx="${x}" cy="${y}" r="${r}" fill="${isO?lc:isD?'none':st.acc?'var(--green)':'none'}" stroke="${lc}" stroke-width="${isO?0:2}" opacity="${initOp}" style="cursor:pointer;transition:opacity .42s ease,fill .42s ease" onmouseenter="sT(event,'${st.id}')" onmousemove="mT(event)" onmouseleave="hT()"/>`;
-      const lo=lblOff(st.bear,r);
-      const lFill=isD?'var(--green)':(st.acc&&!isO)?'var(--green)':'var(--text)';
-      const lOp=isO?'1':isD?'0.22':'0';
-      h+=`<text class="rs-label" data-i="${i}" x="${(st.px+lo.dx).toFixed(1)}" y="${(st.py+lo.dy).toFixed(1)}" text-anchor="${lo.ta}" fill="${lFill}" font-size="${isO||isD?7:5.8}" font-family="'DM Sans',sans-serif" font-weight="${isO||isD?700:400}" opacity="${lOp}" style="transition:opacity .42s ease,fill .42s ease;pointer-events:none">${st.nm}</text>`;
-      if(isO||isD||isT){
-        const btxt=`L${st.ln}`;
-        const bx=(st.px+lo.dx).toFixed(1),by=(st.py+lo.dy+(lo.dy<0?-8:8)).toFixed(1);
-        h+=`<text class="rs-badge" data-i="${i}" x="${bx}" y="${by}" text-anchor="${lo.ta}" fill="${lc}" font-size="5.2" font-family="'Space Mono',monospace" opacity="${isO?'0.75':isD?'0.22':'0'}" style="transition:opacity .42s ease;pointer-events:none">${btxt}</text>`;
-      }
-    });
-    return h;
-  }
-
-  function updateSVG3(svgEl,step){
-    const destFinal=step>=N_ST3-2;
-    R3.forEach((st,i)=>{
-      const isO=i===0,isD=st.tp==='dest',isT=st.tp==='transfer';
-      const revealed=isO||(i<=step+1&&step>=0);
-      const seg=svgEl.querySelector(`.rs-seg[data-i="${i}"]`);
-      if(seg)seg.style.opacity=i<=step+1?'0.92':'0';
-      const ring=svgEl.querySelector(`.rs-ring[data-i="${i}"]`);
-      if(ring)ring.style.opacity=revealed?'0.5':'0';
-      const node=svgEl.querySelector(`.rs-node[data-i="${i}"]`);
-      if(node){
-        if(isO){node.style.opacity='1';}
-        else if(isD){node.setAttribute('fill',destFinal?'var(--green)':'none');node.style.opacity=destFinal?'1':'0.2';}
-        else{node.setAttribute('fill',revealed?(st.acc?'var(--green)':'none'):'none');node.style.opacity=revealed?'1':'0';}
-      }
-      const lbl=svgEl.querySelector(`.rs-label[data-i="${i}"]`);
-      if(lbl){
-        if(isO)lbl.style.opacity='1';
-        else if(isD){lbl.setAttribute('fill','var(--green)');lbl.style.opacity=destFinal?'1':'0.22';}
-        else{lbl.setAttribute('fill',st.acc?'var(--green)':'var(--text)');lbl.style.opacity=revealed?'1':'0';}
-      }
-      const badge=svgEl.querySelector(`.rs-badge[data-i="${i}"]`);
-      if(badge){
-        if(isO)badge.style.opacity='0.75';
-        else if(isD)badge.style.opacity=destFinal?'0.75':'0.22';
-        else if(isT)badge.style.opacity=revealed?'0.75':'0';
-      }
-    });
-  }
-
-  function init3(){
-    const story=document.getElementById('rs-story-3');
-    const sticky=document.getElementById('rs-sticky-3');
-    const svgEl=document.getElementById('rs-svg-3');
-    const gEl=document.getElementById('rs-g-3');
-    const capEl=document.getElementById('rs-cap-text-3');
-    if(!story||!svgEl||!capEl)return;
-    if(gEl)gEl.innerHTML=buildSVG3();else svgEl.innerHTML=buildSVG3();
-    let cur=-2;
-    function go(step){
-      if(step===cur)return;cur=step;
-      updateSVG3(svgEl,step);
-      const stIdx3=Math.max(0,Math.min(step+1,R3.length-1));
-      setCaption(capEl,R3_CAPS[Math.max(0,Math.min(step+1,R3_CAPS.length-1))],R3[stIdx3]);
-    }
-    go(-1);
-    panel.addEventListener('scroll',()=>{
-      const pR=panel.getBoundingClientRect(),sR=story.getBoundingClientRect();
-      const spacer=(pR.top-sR.top)-(sticky?sticky.offsetHeight:400);
-      go(Math.max(-1,Math.min(N_ST3-2,Math.floor(spacer/100))));
-    },{passive:true});
-  }
-  init3();
+  makeRoute({storyId:'rs-story-1',mapId:'rs-map-1',capId:'rs-cap-text-1',stations:R1,caps:R1_CAPS});
+  makeRoute({storyId:'rs-story-2',mapId:'rs-map-2',capId:'rs-cap-text-2',stations:R2,caps:R2_CAPS});
+  makeRoute({storyId:'rs-story-3',mapId:'rs-map-3',capId:'rs-cap-text-3',stations:R3,caps:R3_CAPS});
 
 })();
 }
