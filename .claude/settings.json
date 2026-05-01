@@ -18,7 +18,10 @@
       "Bash(curl -L \"https://raw.githubusercontent.com/Monnhelen/Proyecto-Metro/main/editadablanco.jpg\" -o \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/foto1.jpg\")",
       "Bash(git checkout *)",
       "Bash(head -n 2671 \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/intro.html\")",
-      "Bash(mv /tmp/intro_clean.html \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/intro.html\")"
+      "Bash(mv /tmp/intro_clean.html \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/intro.html\")",
+      "Bash(ogr2ogr --version)",
+      "Bash(python3 -c \"import geopandas; print\\('geopandas ok'\\)\")",
+      "Bash(python3 -c \"import shapefile; print\\('pyshp ok'\\)\")"
     ]
   }
 }
