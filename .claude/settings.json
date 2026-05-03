@@ -21,7 +21,15 @@
       "Bash(mv /tmp/intro_clean.html \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/intro.html\")",
       "Bash(ogr2ogr --version)",
       "Bash(python3 -c \"import geopandas; print\\('geopandas ok'\\)\")",
-      "Bash(python3 -c \"import shapefile; print\\('pyshp ok'\\)\")"
+      "Bash(python3 -c \"import shapefile; print\\('pyshp ok'\\)\")",
+      "Bash(python3 -)",
+      "Bash(python3 /tmp/convert_shapefiles.py)",
+      "Bash(awk -F',' '{print $1, $7}')",
+      "Bash(awk -F',' '$7==\"Si\" {print $1\",\"$2\",\"$7}' \"/Users/monicadamazo/Documents/CENTRO/Proyecto final/Proyecto-Metro/data/nodos.csv\")"
+    ],
+    "additionalDirectories": [
+      "/tmp",
+      "/private/tmp"
     ]
   }
 }
