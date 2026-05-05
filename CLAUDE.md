@@ -4,72 +4,99 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a static data visualization project analyzing accessibility in the Mexico City Metro (Sistema de Transporte Colectivo Metro, CDMX). It has no build system — all files are plain HTML/CSS/JavaScript opened directly in a browser.
+Static data visualization project analyzing accessibility in the Mexico City Metro (STC Metro, CDMX). No build system — all files are plain HTML/CSS/JavaScript opened directly in a browser.
 
 ## Running the Project
-
-Open any HTML file directly in a browser, or serve with any static file server:
 
 ```bash
 python3 -m http.server 8080
 # then open http://localhost:8080
 ```
 
-No dependencies to install. No build step.
+No dependencies to install. No build step. The font files in `Tipografías/` must be served over HTTP (not `file://`) for `@font-face` to load correctly.
 
-## File Structure and Architecture
+## Site Architecture and Navigation
 
-### HTML Files (three standalone visualizations)
+The four active pages link to each other via a shared top-nav:
 
-- **`index.html`** — Primary interactive map. The most complex file. Features:
-  - D3.js v7.8.5 force-layout network graph of metro stations
-  - Dark/light theme toggle (CSS custom properties on `:root` and `body.light`)
-  - Sidebar with station search (autocomplete), route finder, and radial proximity analysis
-  - Overlay modes: Accessibility, Ridership (`afluencia`), Radial analysis
-  - Intro panel (editorial narrative mode) that hides the map and sidebar
-  - Download menu (SVG/PNG export) and overlay options
-  - All data is inlined in the JS — no fetch calls
+| File | Role | Theme |
+|---|---|---|
+| `intro.html` | Editorial narrative ("Reportaje") — entry point | Always light |
+| `index.html` | Interactive force-layout network map | Dark (default) / Light toggle |
+| `Radial.html` | Standalone radial + arch view of the network | Dark (default) / Light toggle |
+| `mapa-accesibilidad.html` | Geographic map with accessibility/ridership overlays | Always light |
 
-- **`metro-accesibilidad.html`** — Long-form editorial/narrative article about metro accessibility. Uses a fixed light theme (same CSS variables as `index.html` light mode). Includes a scrolling progress bar and a dot-plot visualization (`#v3-svg`) built with D3.
+Two additional standalone files exist but are not part of the main navigation:
+- `metro-accesibilidad.html` — older long-form article with D3 dot-plot (`#v3-svg`)
+- `network_metro_cdmx.html` — older standalone network graph (Network / Radial / Arch views)
 
-- **`network_metro_cdmx.html`** — Standalone network graph with three view modes: Network (force layout), Radial, and Arch. Darker aesthetic than the other files.
+`Versiones anteriores/` contains archived prior versions — do not edit these.
 
-### Data Files (`data/`)
+## Key Files and Their Roles
 
-- **`nodos.csv`** — Station nodes. Columns: `id, Linea, Orden, Tipo, Elevador, EE, Accesibilidad, Personas_Afectadas, lat, lng`
-  - `Tipo`: Terminal / Transbordo (transfer) / Intermedia
-  - `Elevador`: Si/No — elevator present
-  - `EE`: Si/No — "Estación Especial" / accessible entrance
-  - `Accesibilidad`: Si/No — overall accessibility rating
-  - `Personas_Afectadas`: estimated daily ridership affected by inaccessibility
+### `intro.html`
+The main editorial page. Uses **Leaflet 1.9.4** for geographic rendering (not D3 SVG), loaded on top of `basemap_data.js`. Also embeds the D3 dot-plot visualization (`#v3-svg`) and editorial hero section with `Foto/imglargaaaa.jpg`. Uses the custom `tipo_metro_cdmx` typeface for display headings (referenced as `var(--metro)`).
 
-- **`aristas.csv`** — Edges. Columns: `source, target, Tipo, Linea, Accesible_PCD`
-  - `Tipo`: Secuencial (sequential along a line) or Transbordo (transfer between lines)
-  - `Accesible_PCD`: 1/0 — accessible for persons with disabilities
+### `index.html`
+The most complex file. D3.js v7.8.5 force-layout network graph. **All station and edge data is inlined in the JS** — no fetch calls, no dependency on `data/*.csv` at runtime. Features: dark/light theme toggle, sidebar with station search + route finder + radial proximity analysis, overlay modes (Accessibility / Ridership / Radial), SVG/PNG export.
 
-### Assets
+### `Radial.html`
+Standalone radial visualization. Shares similar CSS variable system with `index.html` and supports the same dark/light toggle. Uses Satoshi (via fontshare.com CDN) as the primary sans-serif.
 
-- `Mapa_metro_2026-scaled.png` — Official metro map image (2026 version)
-- `Visualización 1.png` — Tableau/BI visualization screenshot used in the article
+### `mapa-accesibilidad.html`
+SVG-based geographic map (D3, no Leaflet). Sidebar shows per-line accessibility stats. Three view modes: Accesibilidad / Afluencia / Solo red. Does **not** use `basemap_data.js`.
+
+### `basemap_data.js`
+Auto-generated file (~18 MB). Contains two JS constants:
+- `BASEMAP_MANZANAS` — GeoJSON FeatureCollection of CDMX city blocks (manzanas)
+- `BASEMAP_MUN15` — GeoJSON FeatureCollection of Estado de México municipalities
+
+**Do not edit by hand.** Regenerate using `convert_shapefiles.py` if the source shapefiles change:
+```bash
+pip install pyshp
+python3 convert_shapefiles.py
+```
+The script reads shapefiles from `Mapa/` (absolute paths hardcoded in the script) and overwrites `basemap_data.js`.
+
+## Data Files (`data/`)
+
+- **`nodos.csv`** — Station nodes: `id, Linea, Orden, Tipo, Elevador, EE, Accesibilidad, Personas_Afectadas, lat, lng`
+  - `Tipo`: Terminal / Transbordo / Intermedia
+  - `Elevador` / `EE` / `Accesibilidad`: Si/No
+  - Transfer stations appear multiple times with line suffixes (e.g., `Tacubaya_1`, `Tacubaya_2`)
+
+- **`aristas.csv`** — Edges: `source, target, Tipo, Linea, Accesible_PCD`
+  - `Tipo`: Secuencial (along a line) or Transbordo (between lines)
+  - `Accesible_PCD`: 1/0
+
+`index.html` inlines this data directly in JS rather than fetching at runtime. If you update the CSVs, you must also update the inlined data in `index.html`.
 
 ## Design System
 
-All three HTML files share the same CSS custom property naming convention:
+All HTML files share the same CSS custom property names:
 
 ```css
---bg, --panel, --card, --border          /* backgrounds */
---text, --text2, --text3                  /* text hierarchy */
---accent, --green, --orange, --red        /* semantic colors */
---mono, --sans, --serif                   /* font families */
+--bg, --panel, --card, --border     /* backgrounds */
+--text, --text2, --text3            /* text hierarchy */
+--accent, --green, --orange, --red  /* semantic colors */
+--mono, --sans, --serif             /* font families */
+--metro                             /* tipo_metro_cdmx (intro.html only) */
 ```
 
-`index.html` supports dark (default) and light themes via `body.light` class. `metro-accesibilidad.html` is always light. `network_metro_cdmx.html` is always dark.
+Light/dark theming is done via `body.light` class on the `<body>` element. Files with a fixed theme just don't include the `body.light` override block.
 
-Font stack: **DM Sans** (body/UI), **Space Mono** (labels/code/monospace), **Playfair Display** (editorial headlines).
+**Font stack:**
+- `DM Sans` — primary UI/body (Google Fonts)
+- `Space Mono` — labels, stats, monospace values (Google Fonts)
+- `Playfair Display` — editorial headlines (Google Fonts, used in `metro-accesibilidad.html`)
+- `Satoshi` — primary sans in `Radial.html` (fontshare.com CDN)
+- `tipo_metro_cdmx` — official STC Metro typeface, used for display headings in `intro.html`. Served from `Tipografías/Metro/Web Fonts/tipometrocdmx_regular_macroman/` (woff2 + woff). Four weights available: Regular, Bold, Light, and their italics.
 
-## Key Conventions
+**Line colors** are hardcoded in JS objects (not CSS). Line 1 = pink (`#E4538F`), Line 2 = blue (`#0069A7`), etc., following official STC colors.
 
-- CSS is minified/compressed in `index.html` (single-line rules). `metro-accesibilidad.html` uses spaced-out CSS with section comments.
-- Station IDs in `nodos.csv` use underscores with line suffixes for transfer stations (e.g., `Tacubaya_1`, `Tacubaya_2`) since the same physical station appears on multiple lines.
-- Line colors for CDMX metro lines are hardcoded in JS objects (not in CSS). Line 1 = pink, Line 2 = blue, etc., following official STC colors.
-- `index.html` inlines all station/edge data in JavaScript rather than fetching the CSV files at runtime.
+## CSS Conventions
+
+- `index.html`: CSS is minified to single-line rules (compressed style).
+- `metro-accesibilidad.html`: Spaced-out CSS with `/* ═══ section ═══ */` section comments.
+- `intro.html` and `Radial.html`: Compressed CSS with occasional section comments.
+- Font sizes throughout use `rem` with very small values (e.g., `.72rem`, `.52rem`) — this is intentional for the dense UI aesthetic.
