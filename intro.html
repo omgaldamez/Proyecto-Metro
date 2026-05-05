@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metro CDMX — Accesibilidad</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&family=Space+Mono:wght@400;700&family=Michroma&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
@@ -115,11 +115,11 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   min-height:100vh;
   display:flex;
   flex-direction:column;
-  justify-content:center;
+  justify-content:flex-start;
   padding:0;
-  background-image:url('Foto/imglargaaaa.jpg');
-  background-size:cover;
-  background-position:85% 40%;
+  background-image:url('Foto/fotocrema.jpg');
+  background-size:110%;
+  background-position:50% 30%;
   background-repeat:no-repeat;
   border-top:3px solid var(--accent);
   border-bottom:1px solid var(--border);
@@ -129,16 +129,17 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
 #hero-bg{
   position:absolute;inset:0;
-  background:rgba(255,255,255,0.18);
+  background:linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, transparent 25%, transparent 75%, rgba(255,255,255,0.55) 100%);
   z-index:0;
 }
 
 #hero-content{
   position:relative;z-index:2;
-  width:44%;
-  margin-left:6%;
+  width:60%;
+  margin-left:auto;
   margin-right:auto;
-  padding:80px 0;
+  padding:120px 0 0;
+  text-align:center;
 }
 
 @media(max-width:768px){
@@ -147,14 +148,14 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
 .hero-kicker{
   font-family:var(--sans);
-  font-size:.58rem;
+  font-size:.62rem;
   font-weight:500;
-  letter-spacing:.22em;
+  letter-spacing:.18em;
   text-transform:uppercase;
-  color:rgba(4,4,4,0.55);
-  margin-bottom:.9rem;
+  color:rgba(4,4,4,0.5);
+  margin-bottom:.7rem;
   opacity:0;
-  animation:fadeUp .6s .1s forwards;
+  animation:fadeUp .6s .65s forwards;
 }
 
 .hero-hl{
@@ -165,7 +166,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   color:#040404;
   text-transform:uppercase;
   letter-spacing:.01em;
-  margin-bottom:.9rem;
+  margin-bottom:.4rem;
   opacity:0;
   animation:fadeUp .7s .25s forwards;
 }
@@ -176,12 +177,12 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
 .hero-deck{
   font-family:var(--sans);
-  font-size:clamp(.85rem,1.3vw,.95rem);
+  font-size:clamp(1.2rem,2.2vw,1.55rem);
   font-weight:400;
-  line-height:1.65;
-  color:rgba(4,4,4,0.68);
-  max-width:520px;
-  margin-bottom:1.6rem;
+  line-height:1.35;
+  color:#040404;
+  max-width:100%;
+  margin-bottom:2.4rem;
   opacity:0;
   animation:fadeUp .7s .45s forwards;
 }
@@ -198,18 +199,15 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .hero-meta strong{color:rgba(4,4,4,.7);font-weight:600}
 
 .hero-scroll-cue{
-  display:flex;align-items:center;gap:.5rem;
-  font-family:var(--sans);font-size:.5rem;letter-spacing:.1em;
-  text-transform:uppercase;color:rgba(4,4,4,0.45);
-  margin-top:1.2rem;
+  position:absolute;
+  bottom:32px;
+  left:0;right:0;
+  text-align:center;
+  font-family:var(--sans);font-size:.55rem;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(4,4,4,0.55);
+  z-index:3;
   opacity:0;
-  animation:fadeUp .6s .85s forwards;
-}
-.hero-scroll-cue span{
-  display:inline-block;
-  width:1px;height:20px;
-  background:rgba(4,4,4,.2);
-  animation:scrollPulse 2s 1.5s infinite;
+  animation:fadeUp .6s 1s forwards, scrollBounce 1.8s 1.8s ease-in-out infinite;
 }
 
 @keyframes fadeUp{
@@ -219,6 +217,10 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 @keyframes scrollPulse{
   0%,100%{ opacity:.3;transform:scaleY(1)   }
   50%{     opacity:1;transform:scaleY(1.3) }
+}
+@keyframes scrollBounce{
+  0%,100%{ transform:translateY(0) }
+  50%{     transform:translateY(6px) }
 }
 
 /* ═══════════════════════════════════════════════
@@ -479,7 +481,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .rs-canvas-wrap::before{left:0;background:linear-gradient(to right,var(--bg) 0%,transparent 100%);}
 .rs-canvas-wrap::after{right:0;background:linear-gradient(to left,var(--bg) 0%,transparent 100%);}
 .rs-map{
-  display:block;width:100%;height:520px;
+  display:block;width:100%;height:680px;
   background:var(--bg);
 }
 .rs-overlay{position:absolute;inset:0;z-index:1001;pointer-events:none;overflow:hidden;}
@@ -780,19 +782,11 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   <div id="hero-bg"></div>
 
   <div id="hero-content">
-    <p class="hero-kicker">Periodismo de datos · Movilidad urbana</p>
-    <h1 class="hero-hl">El Metro de la Ciudad<br>de México:<br><em>una deuda con quien más lo necesita</em></h1>
-    <p class="hero-deck">Más de 100 millones de personas lo usaron solo en enero de 2026. Sin embargo, para 1.7 millones de habitantes con discapacidad o limitación motriz, acceder al Metro sigue siendo un obstáculo cotidiano.</p>
-    <div class="hero-meta">
-      <span><strong>CENTRO</strong> — Investigación de campo</span>
-      <span>Sistema de Transporte Colectivo Metro</span>
-      <span>Ciudad de México, 2026</span>
-    </div>
-    <div class="hero-scroll-cue">
-      <span></span>
-      Desplázate para leer
-    </div>
+    <p class="hero-kicker">Periodismo de Datos, 2026</p>
+    <h1 class="hero-hl">ACCESO AL METRO<br>DE LA CIUDAD DE MÉXICO</h1>
+    <p class="hero-deck">Un obstáculo para el 18% de la población</p>
   </div>
+  <p class="hero-scroll-cue">Desliza hacia abajo</p>
 </section>
 
 <!-- ═══════════════════════════════════════════════
@@ -901,7 +895,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
         <div class="rs-header">
           <span class="rs-tag">Ruta laboral</span>
           <div class="rs-title">Constitución de 1917 → Polanco</div>
-          <div class="rs-meta">Línea 12 + Línea 7 &nbsp;·&nbsp; 19 estaciones · origen y destino fuera del sistema</div>
+          <div class="rs-meta">Línea 12 + Línea 7 + Línea 1 &nbsp;·&nbsp; 22 estaciones · origen y destino fuera del sistema</div>
           <div class="rs-desc">Miles de personas recorren cada día una ruta como esta con un destino común: el trabajo. Analizamos el trayecto de Constitución de 1917 a Polanco para explorar qué tan accesible es ese recorrido para quienes viven con alguna discapacidad.</div>
         </div>
         <div class="rs-canvas-wrap">
@@ -932,7 +926,8 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
         <div class="rs-step" data-step="12"></div><div class="rs-step" data-step="13"></div>
         <div class="rs-step" data-step="14"></div><div class="rs-step" data-step="15"></div>
         <div class="rs-step" data-step="16"></div><div class="rs-step" data-step="17"></div>
-        <div class="rs-step" data-step="18"></div>
+        <div class="rs-step" data-step="18"></div><div class="rs-step" data-step="19"></div>
+        <div class="rs-step" data-step="20"></div><div class="rs-step" data-step="21"></div>
       </div>
     </div>
 
@@ -2253,6 +2248,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
 // ROUTE SCROLLYTELLING — radial polar view
 // ═══════════════════════════════════════════════
 (function(){
+  let lockedByStory=null;
   const LC2={'1':'#E4538F','2':'#0069A7','3':'#928A37','4':'#6ABFB0',
     '5':'#FFCD00','6':'#D32F2F','7':'#ED6D26','8':'#118147',
     '9':'#7A4A2A','12':'#C1A832','A':'#9B2D8E','B':'#9E9E9E'};
@@ -2452,10 +2448,11 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       }).addTo(lmap);
     }
 
-    const routeLL=stations.map(st=>[+st.lat,+st.lng]);
+    const stationLL=stations.map(st=>[+st.lat,+st.lng]);
+    const routeLL=[...stationLL];
     if(o.offSystem&&o.offSystem.from) routeLL.push([o.offSystem.from.lat,o.offSystem.from.lng]);
     if(o.offSystem&&o.offSystem.to)   routeLL.push([o.offSystem.to.lat,  o.offSystem.to.lng]);
-    const bounds=L.latLngBounds(routeLL);
+    const bounds=L.latLngBounds(o.fitToStations?stationLL:routeLL);
 
     // ── Off-system connections (fuera del sistema del metro) ──
     const _ofs="font-family:'Satoshi','DM Sans',sans-serif;font-size:8.5px;font-weight:600;letter-spacing:0.04em;color:rgba(4,4,4,0.72);white-space:nowrap;pointer-events:none;padding:1px 5px;background:rgba(250,249,246,0.9);border-radius:2px;border:1px dashed rgba(4,4,4,0.28)";
@@ -2681,14 +2678,21 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
 
     // Freeze panel scroll the moment the section enters view
     const _lockIO=new IntersectionObserver(function(ens){
-      if(!routeComplete&&ens[0].isIntersecting) panel.style.overflowY='hidden';
+      if(!routeComplete&&ens[0].isIntersecting){
+        panel.style.overflowY='hidden';
+        lockedByStory=storyId;
+      }
     },{root:panel,threshold:0.01});
     _lockIO.observe(story);
 
     function inSect(){
       if(routeComplete) return false;
       const pR=panel.getBoundingClientRect(),sR=story.getBoundingClientRect();
-      return sR.top<=pR.top&&sR.bottom>pR.top;
+      // Classic: story top has passed panel top
+      if(sR.top<=pR.top&&sR.bottom>pR.top) return true;
+      // Gap fix: this story locked the panel but hasn't fully scrolled in yet
+      if(lockedByStory===storyId&&sR.bottom>pR.top) return true;
+      return false;
     }
 
     function advanceStep(){
@@ -2704,6 +2708,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       if(Math.floor(sp/100)>=N-2){
         routeComplete=true;
         panel.style.overflowY='';
+        if(lockedByStory===storyId) lockedByStory=null;
         _lockIO.disconnect();
       }
       setTimeout(function(){stepThrottle=false;},250);
@@ -2733,7 +2738,8 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       advanceStep();
     },{passive:false});
 
-    setTimeout(()=>{lmap.invalidateSize();lmap.fitBounds(bounds,{padding:[16,16],maxZoom:14});if(o.zoomOffset)lmap.setZoom(lmap.getZoom()+o.zoomOffset);},160);
+    const _fp=o.fitPadding||[16,16];
+    setTimeout(()=>{lmap.invalidateSize();lmap.fitBounds(bounds,{padding:_fp,maxZoom:16});if(o.zoomOffset)lmap.setZoom(lmap.getZoom()+o.zoomOffset);},160);
   }
 
   makeRoute({storyId:'rs-story-1',mapId:'rs-map-1',capId:'rs-cap-text-1',stations:R1,caps:R1_CAPS,
@@ -2741,7 +2747,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
   makeRoute({storyId:'rs-story-2',mapId:'rs-map-2',capId:'rs-cap-text-2',stations:R2,caps:R2_CAPS,
     offSystem:{to:{lat:19.324427,lng:-99.173970,name:'Universidad UNAM'}}});
   makeRoute({storyId:'rs-story-3',mapId:'rs-map-3',capId:'rs-cap-text-3',stations:R3,caps:R3_CAPS,
-    overlayId:'rs-overlay-3',offFromSpacer:-20,zoomOffset:1,
+    overlayId:'rs-overlay-3',offFromSpacer:-20,fitToStations:true,fitPadding:[10,10],
     offSystem:{from:{lat:19.345930,lng:-99.063892,name:'Constitución de 1917',ln:'8',acc:false,elev:false,ee:false},to:{lat:19.433511,lng:-99.191029,name:'Polanco'}}});
 
 })();
