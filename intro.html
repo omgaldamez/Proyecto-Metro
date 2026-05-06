@@ -20,7 +20,7 @@
 :root{
   --bg:#faf9f6;--panel:#f0efe9;--card:#e6e5de;--border:rgba(4,4,4,.1);
   --text:#040404;--text2:rgba(4,4,4,.56);--text3:rgba(4,4,4,.38);
-  --accent:#040404;--green:#3d7a42;--orange:#FF5808;--red:#a63025;
+  --accent:#040404;--green:#2a985a;--orange:#FF5808;--red:#cc0033;
   --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;--serif:'DM Sans',sans-serif;
   --metro:'tipo_metro_cdmx_regular',sans-serif;
   --ink:#040404;--col:700px;
@@ -38,7 +38,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 /* ── V3: Dot-plot afluencia + accesibilidad ── */
-.viz-section-inner{margin:1.5rem -2rem 2rem;padding:1.5rem 2rem 1rem;background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--accent);overflow-x:auto}
+.viz-section-inner{margin:1.5rem -2rem 2rem;padding:1.5rem 2rem 1rem;overflow-x:auto}
 #v3-section{margin-top:20px}
 #v3-legend{display:flex;gap:6px 14px;flex-wrap:wrap;margin:8px 0 10px;align-items:center}
 .v3-li{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.48rem;color:var(--text2);letter-spacing:.05em;user-select:none}
@@ -350,13 +350,11 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .pull-quote{
   margin:1.6rem 0;
   padding:1.4rem 0 1.2rem;
-  border-top:2px solid var(--ink);
-  border-bottom:1px solid var(--border);
 }
 .pull-quote p{
   font-family:var(--sans);
   font-size:clamp(1.05rem,1.8vw,1.35rem);
-  font-weight:700;
+  font-weight:400;
   line-height:1.3;
   color:var(--ink);
 }
@@ -370,9 +368,8 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 ═══════════════════════════════════════════════ */
 .line-cards{
   display:flex;flex-direction:column;
-  gap:1px;
+  gap:0;
   margin:1.5rem 0 2rem;
-  background:var(--border);
 }
 .line-card{
   background:var(--bg);
@@ -595,7 +592,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 .viz-embed{
   background:var(--bg);
   border:none;
-  border-top:2px solid var(--accent);
   margin:1.8rem -1rem;
   padding:1.2rem 1.4rem 1rem;
   position:relative;
@@ -620,9 +616,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   align-items:center;
   gap:3px 4px;
   padding:4px 8px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:6px;
 }
 .nv-leg-group-title{
   width:100%;
@@ -1189,20 +1182,18 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
     <a href="radial.html" style="display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;padding:12px 28px;background:var(--accent);color:#fff;border-radius:4px;text-decoration:none;letter-spacing:.04em;text-transform:uppercase">⊙ Explorar el Mapa Radial →</a>
   </div>
 
+  <h2 class="chapter-head reveal" style="font-size:clamp(1.3rem,2.5vw,1.9rem);margin-top:3rem;margin-bottom:.6rem">Tener elementos de accesibilidad no garantiza que funcionen</h2>
 
+  <p class="body-p reveal">Una investigación de campo en estaciones de las líneas 1, 2, 3, 7, 8, 12 y A revela una red fragmentada por la desigualdad infraestructural. Los hallazgos muestran que la disponibilidad de elementos de accesibilidad es profundamente dispar, lo que genera condiciones de movilidad muy distintas dependiendo de la zona de la ciudad. A esta disparidad se suma un obstáculo crítico: la presencia de infraestructura no siempre garantiza su utilidad real. Las constantes fallas operativas y las restricciones de uso limitan aún más la autonomía del usuario.</p>
 
   <!-- ── Exclusión ── -->
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center; margin:1.6rem 0;">
     <div class="pull-quote reveal">
-      <p>La falta de accesibilidad en el Metro no es solo un problema de infraestructura: es una forma de <span class="pq-accent">exclusión que se reproduce cada día</span> en cada estación que no garantiza un recorrido completo y digno.</p>
+      <p>Las fallas operativas convierten la infraestructura existente en un obstáculo más</p>
     </div>
     <img src="Foto/IMG_4780-chica.jpg" alt="Metro CDMX accesibilidad"
          style="width:100%; height:100%; object-fit:cover; display:block;">
   </div>
-
-  <p class="body-p reveal">
-    Una investigación de campo en estaciones de las líneas 1, 2, 3, 7, 8, 12 y A revela una red fragmentada por la desigualdad infraestructural. Los hallazgos muestran que la disponibilidad de elementos de accesibilidad es profundamente dispar, lo que genera condiciones de movilidad muy distintas dependiendo de la zona de la ciudad.
-  </p>
 
   <div class="line-cards reveal">
 
@@ -1228,9 +1219,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   <!-- ═══ VISUALIZACIÓN: RED DE ACCESIBILIDAD ═══ -->
   <div class="viz-embed reveal-wipe" id="nv-section">
 
-    <div class="viz-label">Visualización · Red de accesibilidad</div>
     <div class="viz-title" style="font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.4rem">Elementos de accesibilidad por línea</div>
-    <div class="viz-desc" style="font-family:var(--sans);font-size:.82rem;color:var(--text3);line-height:1.5;margin-bottom:1rem">Escaleras eléctricas · Elevadores · Plataformas de ascenso y descenso · Corredores accesibles — datos STC Metro 2025</div>
 
     <div id="nv-header">
       <div id="nv-legend">
@@ -1281,7 +1270,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   </p>
 
   <!-- V3: DOT-PLOT embebido -->
-  <div class="viz-section-inner reveal-wipe">
+  <div id="v3-section" class="viz-section-inner reveal-wipe">
     <p class="body-p" style="font-size:.88rem;margin-bottom:.8rem;color:var(--text3)">Cada punto representa una estación, ordenada por línea. La altura indica la afluencia diaria promedio. El color indica si cuenta con elevador y escaleras eléctricas, solo uno, o ninguno.</p>
     <div id="v3-legend">
       <span class="v3-li"><span class="v3-dot v3-g"></span>Con elevador y escaleras eléctricas</span>
@@ -1303,13 +1292,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
 </main>
 
-<!-- ═══════════════════════════════════════════════
-     FOOTER NOTE
-═══════════════════════════════════════════════ -->
-<footer id="footer-note">
-  <p>Fuentes: Sistema de Transporte Colectivo Metro (STC), Instituto Nacional de Estadística y Geografía (INEGI). Investigación de campo en estaciones de las líneas 1, 2, 3, 7, 8, 12 y A. Ciudad de México, 2026.</p>
-  <p style="margin-top:.5rem"><a href="index.html">← Ver visualización interactiva del sistema</a></p>
-</footer>
 
 <p class="body-p reveal" style="text-align:center;margin-top:2rem;font-weight:700">PUNTO FINAL</p>
 
@@ -1468,7 +1450,7 @@ const LINE_COLORS = {
   '9':'#7B4F3A','12':'#BEA14A','A':'#8B4996','B':'#B1B3B3'
 };
 const ACCESS_COLORS = {
-  AccesoFuncional:'#22c55e',AccesoNoFuncional:'#ef4444',SinAccesos:'#9a8d7c',Especial:'#9a8d7c'
+  AccesoFuncional:'#2a985a',AccesoNoFuncional:'#cc0033',SinAccesos:'#9a8d7c',Especial:'#9a8d7c'
 };
 function nodeColor(d){
   if(d.tipo==='Estación') return '#b8b8b0';
@@ -1669,8 +1651,8 @@ function linkColor(d){
   const src = nodeMap[typeof d.source==='object'?d.source.id:d.source];
   if(!src) return '#c5baa8';
   if(src.cat==='SinAccesos') return '#c5baa8';
-  if(src.cat==='AccesoNoFuncional') return '#ef4444';
-  return '#22c55e';
+  if(src.cat==='AccesoNoFuncional') return '#cc0033';
+  return '#2a985a';
 }
 
 function buildDOM(){
@@ -1789,6 +1771,7 @@ function drawNetwork(){
   nodeSel.select('circle').attr('r',d=>nodeRadius(d,'network'));
 
   simulation = d3.forceSimulation(nodes)
+    .alphaDecay(0.05)
     .force('link', d3.forceLink(links).id(d=>d.id).distance(d=>{
       const src = nodeMap[typeof d.source==='object'?d.source.id:d.source];
       return src&&src.tipo==='Acceso'?60:40;
@@ -1853,7 +1836,7 @@ function drawRadial(){
   nodes.forEach(d=>{if(d.rx===undefined){d.rx=cx;d.ry=cy;}});
 
   nodeSel.select('circle').attr('r',d=>nodeRadius(d,'radial'));
-  nodeSel.transition().duration(700).ease(d3.easeCubicInOut)
+  nodeSel.transition().duration(350).ease(d3.easeCubicInOut)
     .attr('transform',d=>`translate(${d.rx},${d.ry})`);
 
   const posMap = {};
@@ -1999,7 +1982,7 @@ function drawArch(){
   });
 
   nodeSel.select('circle').attr('r',d=>Math.max(5,nodeRadius(d,'arch')));
-  nodeSel.transition().duration(600).ease(d3.easeCubicInOut)
+  nodeSel.transition().duration(300).ease(d3.easeCubicInOut)
     .attr('transform',d=>`translate(${d.ax},${d.ay})`);
   nodeSel.select('text')
     .attr('transform','rotate(-60)').attr('text-anchor','end')
@@ -2965,7 +2948,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
         if(lockedByStory===storyId) lockedByStory=null;
         _lockIO.disconnect();
       }
-      setTimeout(function(){stepThrottle=false;},250);
+      setTimeout(function(){stepThrottle=false;},130);
     }
 
     function reverseStep(){
@@ -2983,7 +2966,7 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
         panel.style.overflowY='';
         if(lockedByStory===storyId) lockedByStory=null;
       }
-      setTimeout(function(){stepThrottle=false;},250);
+      setTimeout(function(){stepThrottle=false;},130);
     }
 
     // wheel
