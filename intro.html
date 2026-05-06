@@ -20,7 +20,7 @@
 :root{
   --bg:#faf9f6;--panel:#f0efe9;--card:#e6e5de;--border:rgba(4,4,4,.1);
   --text:#040404;--text2:rgba(4,4,4,.56);--text3:rgba(4,4,4,.38);
-  --accent:#040404;--green:#66bb6a;--orange:#FF5808;--red:#ef5350;
+  --accent:#040404;--green:#3d7a42;--orange:#FF5808;--red:#a63025;
   --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;--serif:'DM Sans',sans-serif;
   --metro:'tipo_metro_cdmx_regular',sans-serif;
   --ink:#040404;--col:700px;
@@ -133,8 +133,17 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   z-index:0;
 }
 
+#hero-metro-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:2;
+  pointer-events:none;
+  opacity:0.7;
+}
 #hero-content{
-  position:relative;z-index:2;
+  position:relative;z-index:3;
   width:60%;
   margin-left:auto;
   margin-right:auto;
@@ -767,6 +776,90 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 </style>
 </head>
 <body>
+<!-- ── LOADER ── -->
+<div id="loader">
+  <div id="loader-inner">
+    <div id="loader-img-wrap">
+      <img id="loader-img" src="" alt="" />
+    </div>
+    <p id="loader-text">Cargando</p>
+  </div>
+</div>
+<style>
+#loader{position:fixed;inset:0;z-index:99999;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity 0.4s}
+#loader-inner{display:flex;flex-direction:column;align-items:center;gap:1.2rem}
+#loader-img{width:120px;height:120px;object-fit:contain;transition:opacity 0.2s}
+#loader-text{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text3)}
+@keyframes ellipsis{0%{content:''}33%{content:'.'}66%{content:'. .'}100%{content:'. . .'}}
+#loader-text::after{content:'';animation:ellipsis 1.2s steps(1,end) infinite}
+</style>
+<script>
+(function(){
+  var IMAGES=[
+    'cargando/agricolao.png','cargando/auditorio.png','cargando/azcapotzalco.png',
+    'cargando/barranca.png','cargando/bellasartes.png','cargando/bondojito.png',
+    'cargando/centromedico.png','cargando/chilpancingo.png','cargando/ciudadazteca.png',
+    'cargando/constituyentes.png','cargando/consulado.png','cargando/cuatrocaminos.png',
+    'cargando/doctores.png','cargando/ecatepec.png','cargando/ermita.png',
+    'cargando/eugenia.png','cargando/garibaldi.png','cargando/guelatao.png',
+    'cargando/guerrero.png','cargando/hidalgo.png','cargando/hospitalgeneral.png',
+    'cargando/insurgentes.png','cargando/jamaica.png','cargando/juanacatlan.png',
+    'cargando/lazarocardenas%20(1).png','cargando/lazarocardenas.png',
+    'cargando/mixcoac.png','cargando/mixiuhca.png','cargando/nov20.jpg',
+    'cargando/observatorio.png','cargando/olimpica.png','cargando/patriotismo.png',
+    'cargando/plaza%20aragon.png','cargando/polanco.png','cargando/puebla.png',
+    'cargando/reyes.png','cargando/rosario.png','cargando/santamartha.png',
+    'cargando/santanita.png','cargando/tacuba.png','cargando/tacubaya.png',
+    'cargando/tezozomoc.png','cargando/zapata.png','cargando/zoc%20web_Mesa%20de%20trabajo%203.png'
+  ];
+
+  // shuffle
+  for(var i=IMAGES.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=IMAGES[i];IMAGES[i]=IMAGES[j];IMAGES[j]=t;}
+
+  var wrap=document.getElementById('loader-img-wrap');
+  wrap.style.cssText='position:relative;width:120px;height:120px;';
+
+  // two stacked images for real crossfade
+  var imgA=document.getElementById('loader-img');
+  imgA.style.cssText='position:absolute;inset:0;width:120px;height:120px;object-fit:contain;transition:opacity 0.25s;opacity:1;';
+  var imgB=document.createElement('img');
+  imgB.style.cssText='position:absolute;inset:0;width:120px;height:120px;object-fit:contain;transition:opacity 0.25s;opacity:0;';
+  wrap.appendChild(imgB);
+
+  var idx=0, front=imgA, back=imgB;
+  front.src=IMAGES[0];
+
+  var interval=setInterval(function(){
+    idx=(idx+1)%IMAGES.length;
+    back.src=IMAGES[idx];
+    back.onload=function(){
+      front.style.opacity='0';
+      back.style.opacity='1';
+      var tmp=front; front=back; back=tmp;
+    };
+  },400);
+
+  var minPassed=false,docReady=false;
+  function tryHide(){
+    if(!minPassed||!docReady)return;
+    var loader=document.getElementById('loader');
+    loader.style.opacity='0';
+    clearInterval(interval);
+    setTimeout(function(){loader.style.display='none';},400);
+  }
+
+  setTimeout(function(){minPassed=true;tryHide();},1200);
+
+  function checkReady(){if(document.readyState==='complete'){docReady=true;tryHide();}}
+  if(document.readyState==='complete'){docReady=true;}
+  else{document.addEventListener('readystatechange',checkReady);}
+
+  setTimeout(function(){
+    document.querySelectorAll('img[loading="lazy"]').forEach(function(el){el.setAttribute('loading','eager');});
+  },300);
+})();
+</script>
+<!-- ── END LOADER ── -->
 <header>
   <div class="logo"><span>◆</span> METRO CDMX</div>
   <a href="index.html" class="nav-back">← Mapa</a>
@@ -780,6 +873,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 ═══════════════════════════════════════════════ -->
 <section id="hero">
   <div id="hero-bg"></div>
+  <canvas id="hero-metro-canvas"></canvas>
 
   <div id="hero-content">
     <p class="hero-kicker">Periodismo de Datos, 2026</p>
@@ -788,6 +882,167 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   </div>
   <p class="hero-scroll-cue">Desliza hacia abajo</p>
 </section>
+<script>
+(function(){
+  const canvas = document.getElementById('hero-metro-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const COLORS = [
+    '#E4538F','#0069A7','#928A37','#6ABFB0','#C3AA35','#ED6D26',
+    '#118147','#C1A832','#9B2D8E','#E3352A','#6B3F24'
+  ];
+
+  const H_ANGLES = [0, 45, -45, 0, 45, -45, 0, 45];
+  const NUM_ROUTES = 24;
+  let W, H, routes, raf;
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function randInt(a, b) { return Math.floor(rand(a, b + 0.9999)); }
+
+  function buildRoute(idx) {
+    const col      = COLORS[idx % COLORS.length];
+    const fromLeft = idx % 2 === 0;
+
+    const xEdge   = fromLeft ? -W * 0.08 : W * 1.08;
+    const xCenter = fromLeft ? W * 0.38 : W * 0.62;
+    const yEntry  = rand(H * 0.05, H * 0.95);
+
+    const dir        = fromLeft ? 1 : -1;
+    const hAngleDeg  = H_ANGLES[idx % H_ANGLES.length];
+    const hAngleRad  = hAngleDeg * Math.PI / 180;
+    const totalDX    = xCenter - xEdge;
+
+    const bendFrac   = rand(0.35, 0.65);
+    const xBend      = xEdge + totalDX * bendFrac;
+    const yBend      = yEntry + Math.tan(hAngleRad) * Math.abs(totalDX * bendFrac);
+
+    const bendAngleDeg = [-45, 0, 45][randInt(0, 2)];
+    const bendAngleRad = bendAngleDeg * Math.PI / 180;
+    const remDX        = xCenter - xBend;
+    const yEnd         = yBend + Math.tan(bendAngleRad) * Math.abs(remDX) * dir;
+
+    const nStations = randInt(3, 5);
+    const stations  = Array.from({ length: nStations }, (_, s) => ({
+      t: (s + 1) / (nStations + 1),
+      lit: 0
+    }));
+
+    return {
+      col,
+      segs: [{ x: xEdge, y: yEntry }, { x: xBend, y: yBend }, { x: xCenter, y: yEnd }],
+      fromLeft,
+      progress:  Math.random(),
+      speed:     rand(0.00025, 0.00045),
+      trailLen:  rand(0.32, 0.48),
+      lineWidth: rand(4.5, 6.5),
+      stations
+    };
+  }
+
+  function buildAll() {
+    routes = Array.from({ length: NUM_ROUTES }, (_, i) => buildRoute(i));
+  }
+
+  function getPointAt(segs, t) {
+    const n   = segs.length - 1;
+    const seg = Math.min(Math.floor(t * n), n - 1);
+    const lt  = t * n - seg;
+    const a   = segs[seg], b = segs[seg + 1];
+    return { x: a.x + (b.x - a.x) * lt, y: a.y + (b.y - a.y) * lt };
+  }
+
+  function resize() {
+    const r = canvas.parentElement.getBoundingClientRect();
+    W = canvas.width  = r.width;
+    H = canvas.height = r.height || 520;
+    buildAll();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    routes.forEach(route => {
+      route.progress += route.speed;
+      if (route.progress >= 1) {
+        const fresh = buildRoute(routes.indexOf(route));
+        fresh.progress = 0;
+        Object.assign(route, fresh);
+        return;
+      }
+
+      const { segs, col, progress, trailLen, lineWidth, stations } = route;
+      const tHead = progress;
+      const tTail = Math.max(0, tHead - trailLen);
+
+      stations.forEach(st => {
+        if (tHead >= st.t && tTail <= st.t) st.lit = 1;
+        st.lit = Math.max(0, st.lit - 0.008);
+      });
+
+      const steps = 32;
+      const pts   = [];
+      for (let i = 0; i <= steps; i++) {
+        const lt = tTail + (tHead - tTail) * (i / steps);
+        pts.push(getPointAt(segs, Math.min(lt, 0.9999)));
+      }
+
+      const tail = pts[0];
+      const head = pts[pts.length - 1];
+      const grad = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
+      grad.addColorStop(0,   col + 'BB');
+      grad.addColorStop(0.6, col + '66');
+      grad.addColorStop(1,   col + '00');
+
+      ctx.save();
+      ctx.beginPath();
+      pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.strokeStyle = grad;
+      ctx.lineWidth   = lineWidth;
+      ctx.lineCap     = 'round';
+      ctx.lineJoin    = 'round';
+      ctx.stroke();
+      ctx.restore();
+
+      stations.forEach(st => {
+        const p     = getPointAt(segs, st.t);
+        const alpha = st.t <= tHead ? 0.25 + st.lit * 0.75 : 0.12;
+        const r     = 3.5 + st.lit * 2.5;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = col;
+        ctx.lineWidth   = 1.8;
+        ctx.stroke();
+        if (st.lit > 0.05) {
+          ctx.globalAlpha = st.lit * 0.4;
+          ctx.fillStyle   = '#fff';
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+    });
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { raf = requestAnimationFrame(draw); }
+    else { cancelAnimationFrame(raf); }
+  });
+
+  function start() {
+    resize();
+    window.addEventListener('resize', resize);
+    obs.observe(canvas);
+  }
+
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', start)
+    : start();
+})();
+</script>
 
 <!-- ═══════════════════════════════════════════════
      ARTICLE — Narrative scrollytelling
@@ -799,7 +1054,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
     Solo en enero de 2026, más de 100 millones de personas utilizaron el Metro de la Ciudad de México. Es el sistema de transporte más importante de la capital, pero también un espacio de exclusión. Para el 18.5% de la población capitalina, cerca de 1.7 millones de personas con alguna limitación motriz según el INEGI, el acceso al transporte es un obstáculo cotidiano. Vivir con una discapacidad o limitación motriz en esta ciudad significa que el derecho a transitar depende de infraestructuras que, con frecuencia, no existen o simplemente no funcionan. El acceso al transporte sigue siendo, para ellos, un obstáculo cotidiano que fractura su derecho a la ciudad.
   </p>
 
-  <hr class="rule reveal">
 
   <p class="body-p reveal">
     La ciudad debería basarse en el diseño universal, un principio que busca crear entornos utilizables por todas las personas sin necesidad de adaptaciones especiales. El Metro, sin embargo, no fue concebido bajo esta premisa. Aunque se han sumado escaleras eléctricas y rampas de forma parcial, el sistema sigue siendo inaccesible en gran medida, lo que impide que miles de usuarios puedan trasladarse con verdadera autonomía por la red.
@@ -936,11 +1190,14 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   </div>
 
 
-  <hr class="rule reveal">
 
   <!-- ── Exclusión ── -->
-  <div class="pull-quote reveal">
-    <p>La falta de accesibilidad en el Metro no es solo un problema de infraestructura: es una forma de <span class="pq-accent">exclusión que se reproduce cada día</span> en cada estación que no garantiza un recorrido completo y digno.</p>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center; margin:1.6rem 0;">
+    <div class="pull-quote reveal">
+      <p>La falta de accesibilidad en el Metro no es solo un problema de infraestructura: es una forma de <span class="pq-accent">exclusión que se reproduce cada día</span> en cada estación que no garantiza un recorrido completo y digno.</p>
+    </div>
+    <img src="Foto/IMG_4780-chica.jpg" alt="Metro CDMX accesibilidad"
+         style="width:100%; height:100%; object-fit:cover; display:block;">
   </div>
 
   <p class="body-p reveal">
@@ -1005,7 +1262,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 
   </div><!-- /nv-section -->
 
-  <hr class="rule reveal">
 
   <!-- ── Afluencia vs accesibilidad ── -->
   <span class="section-label reveal">Afluencia y accesibilidad por estación</span>
@@ -1019,7 +1275,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
     No poder trasladarse con dignidad es una forma de exclusión que se reproduce cada día. La falta de accesibilidad en los puntos de mayor concurrencia no es un inconveniente aislado, sino una barrera estructural que impide el ejercicio de derechos fundamentales.
   </p>
 
-  <hr class="rule reveal">
 
   <p class="body-p reveal">
     Con base en información pública del Sistema de Transporte Colectivo Metro, se identificaron las estaciones con mayor afluencia diaria y se cruzó ese dato con la presencia de elevadores y escaleras eléctricas. El resultado es contundente: varias de las estaciones más demandadas por la ciudadanía no cuentan con infraestructura de accesibilidad completa.
@@ -1037,7 +1292,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   </div>
   <div id="v3-tip"></div>
 
-  <hr class="rule reveal">
 
   <p class="body-p reveal">
     La solución es replicar el éxito de conectividad de la Línea 12 en toda la red. Una rampa bien diseñada o un elevador funcional no son lujos, sino herramientas que garantizan la seguridad y comodidad de todos los habitantes. La accesibilidad beneficia a personas con carriolas, adultos mayores y ciudadanos con lesiones temporales.
@@ -2714,11 +2968,29 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       setTimeout(function(){stepThrottle=false;},250);
     }
 
-    // wheel — still needed so user can trigger steps
+    function reverseStep(){
+      if(stepThrottle) return;
+      stepThrottle=true;
+      panel.scrollTop=Math.max(0,panel.scrollTop-110);
+      const sticky=story.querySelector('.rs-sticky');
+      const pR=panel.getBoundingClientRect();
+      const stickyH=sticky?sticky.offsetHeight:400;
+      const sp=(pR.top-story.getBoundingClientRect().top)-stickyH;
+      go(Math.max(-1,Math.min(N-2,Math.floor(sp/100))));
+      lmap.invalidateSize();
+      // Si retrocedimos antes del inicio del story, liberar el lock
+      if(sp<-stickyH*0.5){
+        panel.style.overflowY='';
+        if(lockedByStory===storyId) lockedByStory=null;
+      }
+      setTimeout(function(){stepThrottle=false;},250);
+    }
+
+    // wheel
     panel.addEventListener('wheel',function(e){
       if(!inSect()) return;
       e.preventDefault();
-      if(e.deltaY>0) advanceStep();
+      if(e.deltaY>0) advanceStep(); else reverseStep();
     },{passive:false});
 
     // touch
@@ -2727,15 +2999,15 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     panel.addEventListener('touchmove',function(e){
       if(!inSect()) return;
       e.preventDefault();
-      if(_ty-e.touches[0].clientY>10) advanceStep();
+      const dy=_ty-e.touches[0].clientY;
+      if(dy>10) advanceStep(); else if(dy<-10) reverseStep();
     },{passive:false});
 
     // keyboard
     panel.addEventListener('keydown',function(e){
       if(!inSect()) return;
-      if(![32,34,35,40,39].includes(e.keyCode)) return;
-      e.preventDefault();
-      advanceStep();
+      if([32,34,35,40,39].includes(e.keyCode)){e.preventDefault();advanceStep();}
+      else if([33,38,37].includes(e.keyCode)){e.preventDefault();reverseStep();}
     },{passive:false});
 
     const _fp=o.fitPadding||[16,16];

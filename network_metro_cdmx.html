@@ -55,9 +55,6 @@
   </div>
   <div class="sep"></div>
   <div class="legend">
-    <span class="li" id="leg-AccesoFuncional" onclick="toggleCat('AccesoFuncional')"><span class="lc" style="background:#27ae60"></span>Acceso funcional</span>
-    <span class="li" id="leg-AccesoNoFuncional" onclick="toggleCat('AccesoNoFuncional')"><span class="lc" style="background:#e74c3c"></span>Fuera de servicio</span>
-    <span class="li" id="leg-SinAccesos" onclick="toggleCat('SinAccesos')"><span class="lc" style="background:#95a5a6"></span>Sin accesos</span>
     <span class="li" id="leg-1" onclick="toggleCat('1')"><span class="lc" style="background:#E91E8C"></span>L1</span>
     <span class="li" id="leg-2" onclick="toggleCat('2')"><span class="lc" style="background:#0B4EA2"></span>L2</span>
     <span class="li" id="leg-3" onclick="toggleCat('3')"><span class="lc" style="background:#6B8E23"></span>L3</span>
@@ -69,6 +66,11 @@
   </div>
 </header>
 <div id="canvas">
+  <div id="acc-legend" style="position:absolute;bottom:36px;left:16px;z-index:10;display:flex;flex-direction:column;gap:5px;">
+    <span class="li" id="leg-AccesoFuncional" onclick="toggleCat('AccesoFuncional')" style="border-color:transparent"><span class="lc" style="background:#2a985a"></span>Acceso funcional</span>
+    <span class="li" id="leg-AccesoNoFuncional" onclick="toggleCat('AccesoNoFuncional')" style="border-color:transparent"><span class="lc" style="background:#cc3300"></span>Fuera de servicio</span>
+    <span class="li" id="leg-SinAccesos" onclick="toggleCat('SinAccesos')" style="border-color:transparent"><span class="lc" style="background:#95a5a6"></span>Sin accesos</span>
+  </div>
   <svg id="svg">
     <g id="links-g"></g>
     <g id="nodes-g"></g>
@@ -230,7 +232,7 @@ const LINE_COLORS = {
   '8':'#00A85D','9':'#836539','12':'#C8A219','A':'#8B2FC9'
 };
 const ACCESS_COLORS = {
-  AccesoFuncional:'#27ae60',AccesoNoFuncional:'#e74c3c',SinAccesos:'#7f8c8d',Especial:'#7f8c8d'
+  AccesoFuncional:'#2a985a',AccesoNoFuncional:'#cc3300',SinAccesos:'#7f8c8d',Especial:'#7f8c8d'
 };
 function nodeColor(d){
   if(d.tipo==='Estación') return LINE_COLORS[d.cat]||'#888';
@@ -333,8 +335,8 @@ function linkColor(d){
   const src = nodeMap[typeof d.source==='object'?d.source.id:d.source];
   if(!src) return '#444';
   if(src.cat==='SinAccesos') return '#55606a';
-  if(src.cat==='AccesoNoFuncional') return '#c0392b';
-  return '#27ae60';
+  if(src.cat==='AccesoNoFuncional') return '#cc3300';
+  return '#2a985a';
 }
 
 function buildDOM(){
