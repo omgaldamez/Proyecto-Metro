@@ -452,7 +452,6 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   border:none;
   padding:1.1rem 1.4rem 0;
   z-index:5;
-  transition:transform 1s ease-in-out;
   padding-bottom:0;
 }
 #rs-stage{position:relative}
@@ -513,7 +512,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   color:var(--text);
 }
 .rs-spacer{pointer-events:none;}
-.rs-step{height:140px;}
+.rs-step{height:500px;}
 
 /* ═══════════════════════════════════════════════
    CLOSING SECTION
@@ -752,18 +751,78 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
 #nv-popup-content table{width:100%}
 
 /* ═══════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — MOBILE (≤ 600px)
+   Desktop layout unchanged above this breakpoint.
 ═══════════════════════════════════════════════ */
-@media(max-width:720px){
-  #article{ padding:3rem 1.2rem 5rem }
-  .viz-placeholder{ margin:2rem -1.2rem }
-  .viz-embed{ margin:2rem -1.2rem; padding:1.2rem 1rem }
+@media(max-width:600px){
+
+  /* ── Panel / scroll container ── */
+  #introPanel{ overflow-x:hidden }
+
+  /* ── Hero ── */
+  #hero{ background-size:cover; background-position:50% 40%; min-height:85vh }
+  #hero-content{ width:92%; padding:56px 0 40px }
+  .hero-hl{ font-size:clamp(1.4rem,7vw,2rem) }
+  .hero-deck{ font-size:clamp(1rem,4.5vw,1.3rem); margin-bottom:1.6rem }
+  .hero-meta{ font-size:.58rem; gap:.3rem 1rem }
+  .hero-scroll-cue{ bottom:16px }
+
+  /* ── Article wrapper ── */
+  #article{ padding:2rem 1rem 5rem }
+  #article > *{ max-width:100% }
+
+  /* ── Typography ── */
+  .standfirst{ font-size:.95rem; padding-left:.8rem }
+  .body-p{ font-size:.88rem }
+  .chapter-head{ font-size:clamp(1rem,5vw,1.4rem) }
+
+  /* ── Stat callouts ── */
   .stat-pair{ grid-template-columns:1fr }
-  #closing{ padding:3rem 1.2rem }
+  .stat-num{ font-size:clamp(1.8rem,10vw,2.8rem) }
+
+  /* ── Line cards ── */
   .line-card{ grid-template-columns:1fr }
   .line-badge{ margin-bottom:.4rem }
-  #nv-canvas{ height:320px }
+
+  /* ── Inline 2-col grid (text + image) → single column ── */
+  .mobile-stack{ grid-template-columns:1fr !important; gap:1rem !important }
+  .mobile-stack img{ max-height:220px; object-fit:cover }
+
+  /* ── Viz embed / placeholder ── */
+  .viz-placeholder{ margin:1.6rem -.8rem; padding:1.2rem 1rem }
+  .viz-embed{ margin:1.6rem -.8rem; padding:1rem .8rem 1rem }
+
+  /* ── Network / radial viz ── */
+  #nv-canvas{ height:360px }
   #nv-legend{ display:none }
+  #nv-header{ margin-bottom:.4rem }
+  #nv-popup{ right:8px; top:56px; width:calc(100vw - 16px); max-height:55vh }
+
+  /* ── Route scrollytelling ── */
+  .rs-sticky{ padding:.7rem .8rem 0 }
+  .rs-title{ font-size:1.1rem }
+  .rs-desc{ font-size:.84rem }
+  .rs-canvas-wrap{
+    width:100vw;
+    margin-left:calc(50% - 50vw);
+  }
+  .rs-map{
+    height:55vw;
+    min-height:220px;
+    max-height:340px;
+  }
+  .rs-note-card{ width:calc(100vw - 48px); left:50%; font-size:.75rem; padding:12px 14px }
+  .rs-overlay-card{ width:calc(100vw - 48px); font-size:.75rem; padding:12px 14px }
+  .rs-step{ height:300px }
+  .rs-legend{ gap:.4rem .8rem }
+  .rs-leg-item{ font-size:.55rem }
+  [id^="rs-cap-text"]{ font-size:.75rem }
+
+  /* ── Closing / footer ── */
+  #closing{ padding:2rem 1rem }
+  #closing .close-text{ font-size:clamp(1rem,5vw,1.4rem) }
+  #footer-note{ padding:1.2rem 1rem 2rem; font-size:.65rem }
+
 }
 
 </style>
@@ -868,7 +927,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   <a href="index.html" class="nav-back">← Mapa</a>
 </header>
 <div id="introPanel" style="height:calc(100vh - 36px);overflow-y:auto;overflow-x:hidden;position:relative">
-<div id="acc-prog" style="position:sticky;top:0;left:0;height:2px;background:var(--accent);width:0%;z-index:9999;transition:width .12s linear;margin-bottom:-2px;"></div>
+<div id="acc-prog" style="position:sticky;top:0;left:0;height:2px;background:var(--accent);width:0%;z-index:9999;transition:width .3s ease-out;margin-bottom:-2px;"></div>
 
 
 <!-- ═══════════════════════════════════════════════
@@ -1183,7 +1242,7 @@ header{background:var(--bg);border-bottom:2px solid var(--border);padding:7px 14
   <h2 class="chapter-head reveal" style="font-size:clamp(1.3rem,2.5vw,1.9rem);margin-top:3rem;margin-bottom:.6rem">Tener elementos de accesibilidad no garantiza que funcionen</h2>
 
   <!-- ── Exclusión ── -->
-  <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center; margin:1.6rem 0;">
+  <div class="mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:center; margin:1.6rem 0;">
     <p class="body-p reveal" style="margin:0;">Una investigación de campo en estaciones de las líneas 1, 2, 3, 7, 8, 12 y A revela una red fragmentada por la desigualdad infraestructural. Los hallazgos muestran que la disponibilidad de elementos de accesibilidad es profundamente dispar, lo que genera condiciones de movilidad muy distintas dependiendo de la zona de la ciudad. A esta disparidad se suma un obstáculo crítico: la presencia de infraestructura no siempre garantiza su utilidad real. Las constantes fallas operativas y las restricciones de uso limitan aún más la autonomía del usuario.</p>
     <img src="Foto/IMG_4780-chica.jpg" alt="Metro CDMX accesibilidad" loading="lazy"
          style="width:100%; height:100%; object-fit:cover; display:block;">
@@ -2008,6 +2067,12 @@ window.addEventListener('resize',()=>{if(currentView==='radial') setView('radial
     toggleCat: toggleCat,
     closePopup: closePopup,
     init: function(){
+      // Move tooltip to body so position:fixed is always viewport-relative,
+      // not affected by introPanel's overflow:hidden creating a new containing block
+      var _tt=document.getElementById('nv-tooltip');
+      if(_tt&&_tt.parentNode!==document.body) document.body.appendChild(_tt);
+      var _pp=document.getElementById('nv-popup');
+      if(_pp&&_pp.parentNode!==document.body) document.body.appendChild(_pp);
       dims();
       if(W > 10){
         setView('radial');
@@ -2479,7 +2544,15 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
 // ROUTE SCROLLYTELLING — radial polar view
 // ═══════════════════════════════════════════════
 (function(){
-  let lockedByStory=null;
+  var _dbgLastScrollTop=0;
+  var _dbgEvents=[];
+  function _dbgLog(msg){
+    var t=new Date();
+    var ms=('00'+t.getMilliseconds()).slice(-3);
+    var ts=('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2)+':'+('0'+t.getSeconds()).slice(-2)+'.'+ms;
+    _dbgEvents.push(ts+' '+msg);
+    if(_dbgEvents.length>200)_dbgEvents.shift();
+  }
   const LC2={'1':'#E4538F','2':'#0069A7','3':'#928A37','4':'#6ABFB0',
     '5':'#FFCD00','6':'#D32F2F','7':'#ED6D26','8':'#118147',
     '9':'#7A4A2A','12':'#C1A832','A':'#9B2D8E','B':'#9E9E9E'};
@@ -2816,8 +2889,10 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     const N=stations.length;
     let cur=-2;
 
-    function go(step){
-      if(step===cur)return; cur=step;
+    function go(step,noCaption){
+      if(step===cur)return;
+      _dbgLog('go S'+storyId.slice(-1)+' '+cur+'→'+step+' vis:'+(step+2)+'/'+N);
+      cur=step;
       const destFinal=step>=N-2;
 
       segLines.forEach((poly,i)=>{
@@ -2863,17 +2938,21 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
 
       const stIdx=Math.max(0,Math.min(step+1,caps.length-1));
       const st=stations[Math.max(0,Math.min(step+1,N-1))];
-      capEl.style.opacity='0';
-      setTimeout(()=>{
-        let icons='';
-        if(st){
-          if(st.elev)icons+=' <span style="font-size:.72em;opacity:.85">🛗</span>';
-          if(st.ee)  icons+=' <span style="font-size:.72em;opacity:.85">≋</span>';
-          if(st.acc) icons+=' <span style="color:var(--green);font-weight:700;font-size:.8em"> ✓</span>';
-        }
-        capEl.innerHTML=caps[stIdx]+icons;
-        capEl.style.opacity='1';
-      },200);
+      if(!noCaption){
+        capEl.style.opacity='0';
+        _dbgLog('CAP↓ S'+storyId.slice(-1)+' st:'+step+' cap#'+stIdx);
+        setTimeout(()=>{
+          let icons='';
+          if(st){
+            if(st.elev)icons+=' <span style="font-size:.72em;opacity:.85">🛗</span>';
+            if(st.ee)  icons+=' <span style="font-size:.72em;opacity:.85">≋</span>';
+            if(st.acc) icons+=' <span style="color:var(--green);font-weight:700;font-size:.8em"> ✓</span>';
+          }
+          capEl.innerHTML=caps[stIdx]+icons;
+          capEl.style.opacity='1';
+          _dbgLog('CAP↑ S'+storyId.slice(-1)+' cap#'+stIdx+' "'+caps[stIdx].replace(/<[^>]+>/g,'').slice(0,28)+'"');
+        },200);
+      }
     }
 
     // piecewise: enters from below → dwells at center → exits through top
@@ -2886,14 +2965,22 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     }
 
     go(-1);
+    let _prevStepIdx=-999;
+    function _stepH(){ const s=story.querySelector('.rs-step'); return s?s.offsetHeight:500; }
     panel.addEventListener('scroll',()=>{
       const sticky=story.querySelector('.rs-sticky');
       const pR=panel.getBoundingClientRect(),sR=story.getBoundingClientRect();
       const spacer=(pR.top-sR.top)-(sticky?sticky.offsetHeight:400);
+      const stepIdx=Math.floor(spacer/_stepH());
+      if(stepIdx!==_prevStepIdx){
+        var _sk=(_prevStepIdx!==-999&&Math.abs(stepIdx-_prevStepIdx)>1)?'⚠SKIP':'';
+        _dbgLog('scroll S'+storyId.slice(-1)+' sp:'+Math.round(spacer)+' sT:'+Math.round(panel.scrollTop)+' '+_prevStepIdx+'→'+stepIdx+(_sk?' '+_sk:''));
+        _prevStepIdx=stepIdx;
+      }
       if(o.phases){
-        runPhase(Math.max(0,Math.min(Math.floor(spacer/100),o.phases.length-1)));
+        runPhase(Math.max(0,Math.min(stepIdx,o.phases.length-1)));
       } else {
-        go(Math.max(-1,Math.min(N-2,Math.floor(spacer/100))));
+        go(Math.max(-1,Math.min(N-2,stepIdx)));
         if(overlayCard){
           overlayCard.style.transform=`translateX(-50%) translateY(calc(-50% + ${cardY(spacer,-700,-550,-400,-250)}px))`;
         }
@@ -2909,92 +2996,60 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       lmap.invalidateSize();
     },{passive:true});
 
-    // ── Scroll lock: freeze panel until animation complete ──
-    let routeComplete=false;
-    let stepThrottle=false;
-
-    // Freeze panel scroll the moment the section enters view
+    // ── Scroll lock: keep user inside this story until all steps shown ────
+    const _maxStep=o.phases?(o.phases.length-1):(N-2);
+    let _locked=false;
+    let _wheelThrottle=false;
+    function _lockPanel(){
+      if(_locked)return;
+      _locked=true;
+      panel.style.overflowY='hidden';
+      _dbgLog('LOCK S'+storyId.slice(-1));
+    }
+    function _unlockPanel(){
+      if(!_locked)return;
+      _locked=false;
+      panel.style.overflowY='';
+      _dbgLog('UNLOCK S'+storyId.slice(-1));
+    }
+    function _onWheel(e){
+      if(!_locked)return;
+      e.preventDefault();
+      if(_wheelThrottle)return;
+      _wheelThrottle=true;
+      const sticky2=story.querySelector('.rs-sticky');
+      const pR2=panel.getBoundingClientRect(),sR2=story.getBoundingClientRect();
+      const sp2=(pR2.top-sR2.top)-(sticky2?sticky2.offsetHeight:400);
+      const _sz=_stepH();
+      const si2=Math.floor(sp2/_sz);
+      if(e.deltaY>0){
+        panel.scrollTop+=_sz;
+      } else {
+        if(si2<=0){ _unlockPanel(); return; }
+        panel.scrollTop=Math.max(0,panel.scrollTop-_sz);
+      }
+      setTimeout(function(){_wheelThrottle=false;},120);
+    }
+    panel.addEventListener('wheel',_onWheel,{passive:false});
+    // Lock when story top reaches panel top (entering); unlock when all steps done
     const _lockIO=new IntersectionObserver(function(ens){
-      if(!routeComplete&&ens[0].isIntersecting){
-        panel.style.overflowY='hidden';
-        lockedByStory=storyId;
-      }
-    },{root:panel,threshold:0.01});
+      if(ens[0].isIntersecting) _lockPanel();
+    },{root:panel,threshold:0.01,rootMargin:'0px 0px -85% 0px'});
     _lockIO.observe(story);
-
-    function inSect(){
-      if(routeComplete) return false;
-      const pR=panel.getBoundingClientRect(),sR=story.getBoundingClientRect();
-      // Classic: story top has passed panel top
-      if(sR.top<=pR.top&&sR.bottom>pR.top) return true;
-      // Gap fix: this story locked the panel but hasn't fully scrolled in yet
-      if(lockedByStory===storyId&&sR.bottom>pR.top) return true;
-      return false;
-    }
-
-    let burstRunning=false;
-
-    function advanceStep(){
-      if(stepThrottle||burstRunning) return;
-      stepThrottle=true;
-      panel.scrollTop+=110;
-      const sticky=story.querySelector('.rs-sticky');
-      const pR=panel.getBoundingClientRect();
-      const stickyH=sticky?sticky.offsetHeight:400;
-      const sp=(pR.top-story.getBoundingClientRect().top)-stickyH;
-      if(o.phases){
-        const pi=Math.max(0,Math.min(Math.floor(sp/100),o.phases.length-1));
-        runPhase(pi);
-        lmap.invalidateSize();
-        if(pi>=o.phases.length-1){
-          routeComplete=true;panel.style.overflowY='';
-          if(lockedByStory===storyId)lockedByStory=null;
-          _lockIO.disconnect();
-          let absorbing=true;
-          const _absorb=function(e){if(absorbing)e.preventDefault();};
-          panel.addEventListener('wheel',_absorb,{passive:false});
-          setTimeout(function(){absorbing=false;panel.removeEventListener('wheel',_absorb);},700);
-        }
-      } else {
-        go(Math.max(-1,Math.min(N-2,Math.floor(sp/100))));
-        lmap.invalidateSize();
-        if(Math.floor(sp/100)>=N-2){
-          routeComplete=true;panel.style.overflowY='';
-          if(lockedByStory===storyId)lockedByStory=null;
-          _lockIO.disconnect();
-          let absorbing=true;
-          const _absorb=function(e){if(absorbing)e.preventDefault();};
-          panel.addEventListener('wheel',_absorb,{passive:false});
-          setTimeout(function(){absorbing=false;panel.removeEventListener('wheel',_absorb);},700);
-        }
-      }
-      setTimeout(function(){stepThrottle=false;},130);
-    }
-
-    function reverseStep(){
-      if(stepThrottle||burstRunning) return;
-      stepThrottle=true;
-      panel.scrollTop=Math.max(0,panel.scrollTop-110);
-      const sticky=story.querySelector('.rs-sticky');
-      const pR=panel.getBoundingClientRect();
-      const stickyH=sticky?sticky.offsetHeight:400;
-      const sp=(pR.top-story.getBoundingClientRect().top)-stickyH;
-      if(o.phases){
-        const pi=Math.max(0,Math.min(Math.floor(sp/100),o.phases.length-1));
-        runPhase(pi);
-        lmap.invalidateSize();
-        if(sp<-stickyH*0.5){panel.style.overflowY='';if(lockedByStory===storyId)lockedByStory=null;}
-        if(routeComplete&&sp<(o.phases.length-1)*100){routeComplete=false;_lockIO.observe(story);}
-      } else {
-        go(Math.max(-1,Math.min(N-2,Math.floor(sp/100))));
-        lmap.invalidateSize();
-        if(sp<-stickyH*0.5){panel.style.overflowY='';if(lockedByStory===storyId)lockedByStory=null;}
-        if(routeComplete&&sp<(N-2)*100){routeComplete=false;_lockIO.observe(story);}
-      }
-      setTimeout(function(){stepThrottle=false;},130);
+    // Watch spacer end to auto-unlock when all steps reached
+    const _spacerEl=story.querySelector('.rs-spacer');
+    if(_spacerEl){
+      const _doneIO=new IntersectionObserver(function(ens){
+        if(ens[0].isIntersecting){ _unlockPanel(); _lockIO.disconnect(); _doneIO.disconnect(); }
+      },{root:panel,threshold:0.01,rootMargin:'0px 0px 0px 0px'});
+      // Observe last rs-step
+      const _steps=_spacerEl.querySelectorAll('.rs-step');
+      if(_steps.length) _doneIO.observe(_steps[_steps.length-1]);
     }
 
     // ── Phase controller (only active when o.phases is defined) ──────────
+    let burstRunning=false;
+    let _burstGen=0;
     let phaseStep=-1;
     const phaseNotes=[];
     if(o.phases&&o.overlayId){
@@ -3002,9 +3057,14 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       if(_pOv)_pOv.querySelectorAll('.rs-note-card').forEach(function(el){phaseNotes.push(el);});
     }
     function runPhase(idx){
-      if(idx===phaseStep&&!burstRunning)return;
+      if(idx===phaseStep) return; // same phase: burst (if running) continues uninterrupted
+      var _prevPh=phaseStep;
+      var goingFwd=(idx>_prevPh);
+      // Cancel any running burst — increment generation so stale _bTick callbacks self-abort
+      _burstGen++; burstRunning=false;
       phaseStep=idx;
       var ph=o.phases[idx];
+      _dbgLog('phase S'+storyId.slice(-1)+' '+_prevPh+'→'+idx+(ph&&ph.burst&&goingFwd?' BURST['+ph.burst.from+'→'+ph.burst.to+']':'')+(ph&&ph.note>=0?' note:'+ph.note:'')+(goingFwd?'':' ◀'));
       // Notes: show only the one matching ph.note
       phaseNotes.forEach(function(el,i){
         if(ph.note===i)el.classList.add('visible');
@@ -3019,46 +3079,38 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
       if(offToCircle)offToCircle.setStyle({opacity:ph.showOffTo?1:0,fillOpacity:ph.showOffTo?0.85:0});
       if(offToName)offToName.setOpacity(ph.showOffTo?1:0);
       // Station animation
-      if(ph.burst&&!burstRunning){
+      if(ph.burst&&goingFwd){
+        // Forward scroll: animate stations one by one; caption only on final step
         burstRunning=true;
+        var myGen=_burstGen;
         var _bs=ph.burst.from,_bms=ph.burst.interval||150;
         function _bTick(){
-          go(_bs);_bs++;
-          if(_bs<=ph.burst.to)setTimeout(_bTick,_bms);
+          if(_burstGen!==myGen){return;} // stale — newer phase took over
+          var isLast=(_bs>=ph.burst.to);
+          go(_bs,!isLast); // noCaption=true on intermediate steps
+          _bs++;
+          if(!isLast) setTimeout(_bTick,_bms);
           else burstRunning=false;
         }
         _bTick();
-      } else if(!ph.burst){
+      } else {
+        // Backward scroll or non-burst phase: snap immediately to goStep
         go(ph.goStep);
       }
     }
 
-    // wheel
-    panel.addEventListener('wheel',function(e){
-      if(!inSect()) return;
-      e.preventDefault();
-      if(e.deltaY>0) advanceStep(); else reverseStep();
-    },{passive:false});
-
-    // touch
-    let _ty=0;
-    panel.addEventListener('touchstart',function(e){_ty=e.touches[0].clientY;},{passive:true});
-    panel.addEventListener('touchmove',function(e){
-      if(!inSect()) return;
-      e.preventDefault();
-      const dy=_ty-e.touches[0].clientY;
-      if(dy>10) advanceStep(); else if(dy<-10) reverseStep();
-    },{passive:false});
-
-    // keyboard
-    panel.addEventListener('keydown',function(e){
-      if(!inSect()) return;
-      if([32,34,35,40,39].includes(e.keyCode)){e.preventDefault();advanceStep();}
-      else if([33,38,37].includes(e.keyCode)){e.preventDefault();reverseStep();}
-    },{passive:false});
-
     const _fp=o.fitPadding||[16,16];
     setTimeout(()=>{lmap.invalidateSize();lmap.fitBounds(bounds,{padding:_fp,maxZoom:16});if(o.zoomOffset)lmap.setZoom(lmap.getZoom()+o.zoomOffset);},160);
+    // Re-fit the first time this story scrolls into view (Leaflet off-screen init fix)
+    var _ioFit=new IntersectionObserver(function(ens){
+      if(!ens[0].isIntersecting)return;
+      _ioFit.disconnect();
+      lmap.invalidateSize();
+      lmap.fitBounds(bounds,{padding:_fp,maxZoom:16});
+      if(o.zoomOffset)lmap.setZoom(lmap.getZoom()+o.zoomOffset);
+      _dbgLog('refit S'+storyId.slice(-1));
+    },{root:panel,threshold:0.01});
+    _ioFit.observe(story);
   }
 
   // ── rs-stage: wrap and reorder stories 3→2→1 before Leaflet init ──
@@ -3073,8 +3125,6 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     stage.appendChild(s3);
     stage.appendChild(s2);
     stage.appendChild(s1);
-    s2.querySelector('.rs-sticky').style.transform='translateX(100%)';
-    s1.querySelector('.rs-sticky').style.transform='translateX(100%)';
   })();
 
   makeRoute({storyId:'rs-story-1',mapId:'rs-map-1',capId:'rs-cap-text-1',stations:R1,caps:R1_CAPS,
@@ -3098,89 +3148,85 @@ requestAnimationFrame(() => requestAnimationFrame(checkStats));
     ],
     offSystem:{from:{lat:19.345930,lng:-99.063892,name:'Constitución de 1917',ln:'8',acc:false,elev:false,ee:false},to:{lat:19.433511,lng:-99.191029,name:'Polanco'}}});
 
-  // ── Story-to-story slide transition controller ──
-  ;(function(){
-    var seq=['rs-story-3','rs-story-2','rs-story-1'],cur=0,busy=false;
-    function sk(id){return document.getElementById(id).querySelector('.rs-sticky');}
+  // ── Debug overlay (D = mostrar/ocultar, C = limpiar log) ──
+  var _dbgEl=document.createElement('div');
+  _dbgEl.id='rs-dbg-panel';
+  _dbgEl.style.cssText='display:none;position:fixed;top:40px;right:8px;z-index:99999;background:rgba(0,0,0,0.92);color:#39ff14;font-family:monospace;font-size:10px;line-height:1.55;border-radius:5px;min-width:300px;max-width:360px;border:1px solid #39ff14;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.6);';
+  _dbgEl.innerHTML='<div id="rs-dbg-state" style="padding:7px 10px;border-bottom:1px solid #39ff1466;pointer-events:none;white-space:pre;"></div>'
+    +'<div id="rs-dbg-log" style="padding:5px 10px 7px;max-height:280px;overflow-y:auto;pointer-events:auto;cursor:text;user-select:text;-webkit-user-select:text;white-space:pre;"></div>'
+    +'<div style="padding:4px 10px 5px;border-top:1px solid #39ff1466;display:flex;justify-content:space-between;align-items:center;">'
+    +'<span style="font-size:9px;color:#39ff1499;">D=toggle &nbsp; C=limpiar</span>'
+    +'<button id="rs-dbg-copy" style="background:#39ff1422;border:1px solid #39ff1466;color:#39ff14;font-family:monospace;font-size:9px;padding:2px 8px;cursor:pointer;border-radius:3px;">Copiar log</button>'
+    +'</div>';
+  document.body.appendChild(_dbgEl);
+  var _dbgState=document.getElementById('rs-dbg-state');
+  var _dbgLogEl=document.getElementById('rs-dbg-log');
 
-    function doSlide(idx){
-      if(busy||idx>=seq.length-1) return;
-      busy=true;
-      var fEl=sk(seq[idx]),tEl=sk(seq[idx+1]);
-      var pr=panel.getBoundingClientRect();
-      // Guard: current story's sticky must be at panel top (confirma completado, no revertido)
-      var fr=fEl.getBoundingClientRect();
-      if(Math.abs(fr.top-pr.top)>120){busy=false;return;}
-
-      // Bloquear input del usuario durante la animación
-      var bl=document.createElement('div');
-      bl.style.cssText='position:fixed;inset:0;z-index:9998;';
-      bl.addEventListener('wheel',function(e){e.preventDefault();e.stopPropagation();},{passive:false});
-      bl.addEventListener('touchmove',function(e){e.preventDefault();},{passive:false});
-      document.body.appendChild(bl);
-
-      // Fijar el sticky saliente en posición fija en el top del panel
-      fEl.style.position='fixed'; fEl.style.top=pr.top+'px'; fEl.style.left=pr.left+'px';
-      fEl.style.width=pr.width+'px'; fEl.style.zIndex='22'; fEl.style.boxSizing='border-box';
-      fEl.style.transition='none'; fEl.style.transform='translateX(0)';
-
-      // Fijar el sticky entrante fuera a la derecha, misma posición
-      tEl.style.position='fixed'; tEl.style.top=pr.top+'px'; tEl.style.left=pr.left+'px';
-      tEl.style.width=pr.width+'px'; tEl.style.zIndex='21'; tEl.style.boxSizing='border-box';
-      tEl.style.transition='none'; tEl.style.transform='translateX(100%)';
-
-      void fEl.offsetWidth; // forzar reflow
-
-      // Animar
-      fEl.style.transition='transform 1s ease-in-out';
-      tEl.style.transition='transform 1s ease-in-out';
-      fEl.style.transform='translateX(-100%)';
-      tEl.style.transform='translateX(0)';
-
-      setTimeout(function(){
-        bl.remove();
-        // Restaurar saliente (oculto)
-        fEl.style.cssText='';
-        fEl.style.transform='translateX(-100%)';
-        fEl.style.visibility='hidden';
-        // Colapsar el spacer de la ruta saliente: elimina el vacío al scrollear arriba.
-        // Se hace antes de leer getBoundingClientRect del siguiente story para que
-        // el ajuste de scrollTop ya refleje la altura reducida.
-        var _outSp=document.getElementById(seq[idx]).querySelector('.rs-spacer');
-        if(_outSp){_outSp.style.height='0';_outSp.style.overflow='hidden';}
-        // Restaurar entrante (visible, sticky)
-        tEl.style.cssText='';
-        tEl.style.transform='translateX(0)';
-        // Llevar el panel al inicio del siguiente story, saltando la zona muerta
-        var prt=panel.getBoundingClientRect().top;
-        var ns=document.getElementById(seq[idx+1]);
-        var _sk=ns.querySelector('.rs-sticky');
-        var _skH=_sk?_sk.offsetHeight:400;
-        panel.scrollTop+=ns.getBoundingClientRect().top-prt+_skH+50;
-        panel.dispatchEvent(new Event('scroll'));
-        cur=idx+1; busy=false;
-        // Forzar redibujado de los mapas Leaflet
-        window.dispatchEvent(new Event('resize'));
-        setTimeout(function(){
-          window.dispatchEvent(new Event('resize'));
-          if(ns.querySelector('.rs-map')) ns.querySelector('.rs-map')._leaflet_id&&window.dispatchEvent(new Event('resize'));
-        },150);
-      },1050);
-    }
-
-    // Detectar completado de story via cambio en panel.style.overflowY
-    var wasHidden=panel.style.overflowY==='hidden';
-    new MutationObserver(function(muts){
-      muts.forEach(function(m){
-        if(m.attributeName==='style'){
-          var isHidden=panel.style.overflowY==='hidden';
-          if(wasHidden&&!isHidden&&!busy&&cur<seq.length-1)
-            setTimeout(function(){doSlide(cur);},30);
-          wasHidden=isHidden;
-        }
+  document.addEventListener('keydown',function(e){
+    if(e.key==='d'||e.key==='D'){_dbgEl.style.display=_dbgEl.style.display==='none'?'block':'none';_dbgRender();}
+    if(e.key==='c'||e.key==='C'){_dbgEvents=[];_dbgRender();}
+  });
+  document.getElementById('rs-dbg-copy').addEventListener('click',function(){
+    var btn=this;
+    var txt=_dbgEvents.join('\n');
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(txt).then(function(){
+        btn.textContent='✓ Copiado';setTimeout(function(){btn.textContent='Copiar log';},1800);
       });
-    }).observe(panel,{attributes:true,attributeFilter:['style']});
-  })();
+    } else {
+      var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;';
+      document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+      btn.textContent='✓ Copiado';setTimeout(function(){btn.textContent='Copiar log';},1800);
+    }
+  });
+
+  function _dbgRender(){
+    if(_dbgEl.style.display==='none')return;
+    var pR=panel.getBoundingClientRect();
+    var dST=Math.round(panel.scrollTop-_dbgLastScrollTop);
+    _dbgLastScrollTop=panel.scrollTop;
+    var lines=[];
+    lines.push('panel sT:'+Math.round(panel.scrollTop)+(dST!==0?' Δ'+(dST>0?'+':'')+dST:''));
+    ['rs-story-3','rs-story-2','rs-story-1'].forEach(function(sid){
+      var st=document.getElementById(sid);if(!st)return;
+      var sR=st.getBoundingClientRect();
+      var stky=st.querySelector('.rs-sticky');
+      var skH=stky?Math.round(stky.offsetHeight):400;
+      var spacer=Math.round((pR.top-sR.top)-skH);
+      var _rsSt=st.querySelector('.rs-step');var _rsSh=_rsSt?_rsSt.offsetHeight:500;
+      var step=Math.floor(spacer/_rsSh);
+      var xfm=stky?window.getComputedStyle(stky).transform:'–';
+      // Detect non-identity horizontal component in matrix(a,b,c,d,tx,ty): tx is [4]
+      var hxWarn='';
+      if(xfm&&xfm!=='none'){
+        var m=xfm.match(/matrix\([^,]+,[^,]+,[^,]+,[^,]+,([^,]+),/);
+        if(m&&Math.abs(parseFloat(m[1]))>1) hxWarn=' ⚠HX:'+Math.round(parseFloat(m[1]))+'px';
+      }
+      if(xfm&&xfm!=='none'&&xfm.length>10) xfm=xfm.slice(0,22)+'…';
+      lines.push('S'+sid.slice(-1)+' top:'+Math.round(sR.top)+' sp:'+spacer+' step:'+step+' xfm:'+xfm+hxWarn);
+    });
+    ['rs-map-1','rs-map-2','rs-map-3'].forEach(function(mid){
+      var m=document.getElementById(mid);if(!m)return;
+      var r=m.getBoundingClientRect();
+      lines.push(mid+' ['+Math.round(r.left)+','+Math.round(r.top)+'] '+Math.round(r.width)+'×'+Math.round(r.height));
+    });
+    _dbgState.textContent=lines.join('\n');
+    // Log — color por tipo de evento
+    _dbgLogEl.innerHTML=_dbgEvents.map(function(l){
+      var col='#39ff14';
+      if(l.indexOf('refit')>=0) col='#f80';
+      else if(l.indexOf('CAP↓')>=0) col='#aaa';
+      else if(l.indexOf('CAP↑')>=0) col='#fff';
+      else if(l.indexOf('phase')>=0) col='#c8f';
+      else if(l.indexOf('BURST')>=0) col='#fa0';
+      else if(l.indexOf('SKIP')>=0) col='#f44';
+      else if(l.indexOf('go ')>=0) col='#6cf';
+      else if(l.indexOf('scroll')>=0) col='#888';
+      return '<span style="color:'+col+'">'+l+'</span>';
+    }).join('\n');
+    _dbgLogEl.scrollTop=_dbgLogEl.scrollHeight;
+  }
+  panel.addEventListener('scroll',_dbgRender,{passive:true});
 
 })();
 }
